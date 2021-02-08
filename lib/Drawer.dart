@@ -14,7 +14,6 @@ Future<bool> ResfreshLibrary() async
     // then parse the JSON.
     return true;
   } else {
-    developer.log(response.statusCode.toString());
     // If the server did not return a 200 OK response,
     // then throw an exception.
     throw Exception('Failed to load Movie');

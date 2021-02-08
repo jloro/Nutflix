@@ -6,24 +6,36 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/Drawer.dart';
-
+import 'package:transparent_image/transparent_image.dart';
+import 'dart:developer' as developer;
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
-
-  final response =
-  await http.get('https://nutflix.fr/radarr/api/v3/movie', headers : {HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'});
+  var response = await http.get('https://nutflix.fr/radarr/api/v3/movie',
+      headers: {
+        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+      });
 
   if (response.statusCode == 200) {
-
     // If the server did return a 200 OK response,
     // then parse the JSON.
     List<dynamic> list = json.decode(response.body);
-    List<Movie> movies = List<Movie>();
-    list.forEach((element) {
-      movies.add(Movie(obj : element));
-    });
-    return movies;
+    response = await http.get('https://nutflix.fr/radarr/api/v3/queue',
+        headers: {
+          HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        });
+    if (response.statusCode == 200) {
+      List<Movie> movies = List<Movie>();
+      for (int i = 0; i < list.length; i++) {
+        Movie movie = Movie(obj: list[i]);
+        movie.status = movie.GetStatus(json.decode(response.body));
+        movies.add(movie);
+      }
+      return movies;
+    } else {
+      throw Exception('Failed to load queue');
+    }
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -31,75 +43,124 @@ Future<List<Movie>> fetchMovies() async {
   }
 }
 
-class Movies extends StatefulWidget {
+Future<String> GetDiskSizeLeft() async
+{
+  var response = await http.get('https://nutflix.fr/radarr/api/v3/diskspace',
+      headers: {
+        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+      });
+
+  if (response.statusCode == 200) {
+    List<dynamic> list = json.decode(response.body);
+    int spaceLeft = list[0]['freeSpace'];
+    return '${(spaceLeft * 0.000000001).round()} GB left';
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load Movie');
+  }
+
+}
+
+class Movies extends StatelessWidget {
   static const String route = '/movies';
   
   Movies({ Key key }) : super(key: key);
-  
-  @override
-  _MoviesState createState() => _MoviesState();
-}
-
-class _MoviesState extends State<Movies> {
-  Future<List<Movie>> movies;
-
-  @override
-  void initState() {
-    super.initState();
-    movies = fetchMovies();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: AppBar(
+        title: Container(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Movies'),
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FutureBuilder<String>(
+                    future: GetDiskSizeLeft(),
+                    builder: (context, snapshot) {
+                      developer.log(snapshot.error.toString());
+                      if (snapshot.hasData) {
+                        return Text(snapshot.data);
+                      } else {
+                        return Text('');
+                      }
+                    },
+                  ),
+                )
+              )
+            ],
+          ),
+        )
+      ),
       drawer: CustomDrawer(),
       body : FutureBuilder(
-          future : movies,
+          future : fetchMovies(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return GridView.builder(
                   itemCount: snapshot.data.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
-                    childAspectRatio: 2 / 3,
+                      childAspectRatio: 2 / 3,
                       crossAxisCount: 3
                   ),
                   itemBuilder: (context, i) {
                     Movie movie = snapshot.data[i];
+                    Color circleColor = Colors.white;
+                    if (movie.status == Status.Downloaded)
+                      circleColor = Colors.green;
+                    else if (movie.status == Status.Queued)
+                      circleColor = Colors.purple;
+                    else if (movie.status == Status.Missing)
+                      circleColor = Colors.yellow;
+
                     return Container(
-                      child: Card(
-                        clipBehavior: Clip.antiAlias,
-                        semanticContainer: true,
-                        elevation: 5,
-                        child: GridTile(
-                          footer: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Padding(
-                              padding: EdgeInsets.all(5),
-                              child: Stack(
-                                children: [
-                                  Icon(
-                                    Icons.circle,
-                                    color: Colors.orange,
-                                    size: 16,
-                                  ),
-                                  Icon(
-                                    Icons.panorama_fish_eye_outlined,
-                                    color: Colors.black,
-                                    size: 16,
-                                  ),
-                                ],
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          semanticContainer: true,
+                          elevation: 5,
+                          child: GridTile(
+                              footer: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Padding(
+                                      padding: EdgeInsets.all(5),
+                                      child: Stack(
+                                        children: [
+                                          Icon(
+                                            Icons.circle,
+                                            color: circleColor,
+                                            size: 16,
+                                          ),
+                                          Icon(
+                                            Icons.panorama_fish_eye_outlined,
+                                            color: Colors.black,
+                                            size: 16,
+                                          ),
+                                        ],
+                                      )
+                                  )
+                              ),
+                              child: SizedBox(
+                                child: FadeInImage.memoryNetwork(
+                                      fadeInDuration: Duration(milliseconds: 400),
+                                      placeholder: kTransparentImage,
+                                      fit: BoxFit.cover,
+                                      image: movie.GetPoster(),
+                                    )
                               )
-                            )
                           ),
-                          child: SizedBox(
-                            height: 200,
-                            child: Image.network(movie.GetPoster(), fit: BoxFit.cover),
-                          )
-                      ),
-                    )
-                  );
-                }
+                        )
+                    );
+                  }
               );
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");

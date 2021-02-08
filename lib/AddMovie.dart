@@ -55,136 +55,155 @@ Future<bool> HasMovie(Movie movie) async
   }
 }
 
-class AddMovie extends StatelessWidget {
+class AddMovie extends StatefulWidget {
   static const String route = '/search/addmovie';
+
+
+  @override
+  _AddMovieState createState() => new _AddMovieState();
+}
+
+class _AddMovieState extends State<AddMovie>
+{
+  bool addIsInactive;
+
+  @override
+  void initState() {
+    addIsInactive = false;
+  }
 
   @override
   Widget build(BuildContext context) {
     final Movie movie = ModalRoute.of(context).settings.arguments;
+    void Function() addOnPressed;
+    void Function() plexOnPressed;
+
 
     return Scaffold(
-      appBar: CustomAppBar(),
-      body: Column(
-      children: <Widget>[
-        Container(
-        height: 200,
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 20, left: 5),
-              child: Stack(
-                children: <Widget>[
-                  Text(
-                    movie.GetTitle(),
-                    style: TextStyle(
-                      fontSize: 20,
-                      foreground: Paint()
-                        ..style = PaintingStyle.stroke
-                        ..strokeWidth = 3
-                        ..color = Colors.black
-                    )
-                  ),
-                  Text(
-                    movie.GetTitle(),
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white
-                    ),
-                  )
-                ],
-              )
-            )
-          ),
-        decoration: BoxDecoration(
-          color: const Color(0xff7c94b6),
-          image: DecorationImage(
-            image: NetworkImage(movie.GetFanart()),
-            fit: BoxFit.cover
-          )
-        )
-      ),
-        Container(
-          height: 200,
-          color: Colors.pink,
-          child: Row(
+        appBar: CustomAppBar(),
+        body: Column(
             children: <Widget>[
-              SizedBox(
+              Container(
+                  height: 200,
+                  child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Padding(
+                          padding: EdgeInsets.only(bottom: 20, left: 5),
+                          child: Stack(
+                            children: <Widget>[
+                              Text(
+                                  movie.GetTitle(),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = 3
+                                        ..color = Colors.black
+                                  )
+                              ),
+                              Text(
+                                movie.GetTitle(),
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white
+                                ),
+                              )
+                            ],
+                          )
+                      )
+                  ),
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: NetworkImage(movie.GetFanart()),
+                          fit: BoxFit.cover
+                      )
+                  )
+              ),
+              Container(
                 height: 200,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                  child: Image.network(movie.GetPoster()),
-                ),
-              ),
-              Expanded(
-                child: Column(
+                child: Row(
                   children: <Widget>[
-                    Text(new DateFormat().add_yMMMd().format(DateTime.parse(movie.GetRelease()))
+                    SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                        child: Image.network(movie.GetPoster()),
+                      ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: const Text('Movies', style: TextStyle(fontSize: 20)),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final url = 'https://www.imdb.com/title/${movie.GetIMDBId()}';
-                        if (await canLaunch(url))
-                          await launch(url);
-                        else
-                          throw "Could not launch $url";
-                      },
-                      child: const Text('IMDB', style: TextStyle(fontSize: 20)),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: FutureBuilder<bool>(
-                future: HasMovie(movie),
-                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  developer.log(snapshot.hasData.toString());
-                  void Function() addOnPressed;
-                  void Function() plexOnPressed;
-
-                  if (snapshot.hasData)
-                  {
-                    if (!snapshot.data)
-                    {
-                      addOnPressed = () async {
-                        await AddRadarrMovie(movie);
-                      };
-                      plexOnPressed = null;
-                    } else {
-                      addOnPressed = null;
-                      plexOnPressed = () {};
-                    }
-
-                    return Column(
+                    Expanded(
+                      child: Column(
                         children: <Widget>[
-                          Text('Rating : ${movie.GetRating()}'
+                          Text(new DateFormat().add_yMMMd().format(DateTime.parse(movie.GetRelease()))
                           ),
                           ElevatedButton(
-                            onPressed: addOnPressed,
-                            child: const Text('Add', style: TextStyle(fontSize: 20)),
+                            onPressed: () {},
+                            child: const Text('Movies', style: TextStyle(fontSize: 20)),
                           ),
                           ElevatedButton(
-                            onPressed: plexOnPressed,
-                            child: const Text('View on plex', style: TextStyle(fontSize: 20)),
+                            onPressed: () async {
+                              final url = 'https://www.imdb.com/title/${movie.GetIMDBId()}';
+                              if (await canLaunch(url))
+                                await launch(url);
+                              else
+                                throw "Could not launch $url";
+                            },
+                            child: const Text('IMDB', style: TextStyle(fontSize: 20)),
                           ),
                         ],
-                    );
-                  } else{
-                    return UnconstrainedBox(
-                      child : CircularProgressIndicator()
-                    );
-                  }
-                },
+                      ),
+                    ),
+                    Expanded(
+                        child: FutureBuilder<bool>(
+                          future: HasMovie(movie),
+                          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                            developer.log(snapshot.hasData.toString());
+
+                            if (snapshot.hasData)
+                            {
+                              if (!snapshot.data)
+                              {
+                                addOnPressed = () async {
+                                  setState(() {
+                                    addIsInactive = true;
+                                    addOnPressed = null;
+                                    plexOnPressed = () {};
+                                  });
+
+                                  await AddRadarrMovie(movie);
+                                };
+                                plexOnPressed = null;
+                              } else {
+                                addOnPressed = null;
+                                plexOnPressed = () {};
+                              }
+
+                              return Column(
+                                children: <Widget>[
+                                  Text('Rating : ${movie.GetRating()}'
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: addIsInactive ? null : addOnPressed,
+                                    child: const Text('Add', style: TextStyle(fontSize: 20)),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: plexOnPressed,
+                                    child: const Text('View on plex', style: TextStyle(fontSize: 20)),
+                                  ),
+                                ],
+                              );
+                            } else{
+                              return UnconstrainedBox(
+                                  child : CircularProgressIndicator()
+                              );
+                            }
+                          },
+                        )
+                    )
+                  ],
+                ),
               )
-              )
-            ],
-          ),
+            ]
         )
-        ]
-      )
     );
   }
 
