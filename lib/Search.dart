@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:nutflix/AppBar.dart';
+import 'package:nutflix/BottomNavigationBar.dart';
 import 'package:nutflix/Drawer.dart';
 import 'package:nutflix/routes.dart';
 import 'dart:developer' as developer;
@@ -25,9 +26,8 @@ Future<List<Movie>> FetchSearch(String search) async {
     List<dynamic> list = json.decode(response.body);
     List<Movie> movies = List<Movie>();
     list.forEach((element) {
-      Movie movie = Movie(obj : element);
-      if (movie.GetRelease() != 'N/A')
-        movies.add(movie);
+      Movie movie = Movie(obj: element);
+      if (movie.GetRelease() != 'N/A') movies.add(movie);
     });
     return movies;
   } else {
@@ -54,6 +54,7 @@ class CustomListItem extends StatelessWidget {
           elevation: 5,
           child: InkWell(
               onTap: () {
+                FocusScope.of(context).unfocus();
                 Navigator.pushNamed(context, Routes.addMovie, arguments: movie);
               },
               child: Row(
@@ -63,9 +64,8 @@ class CustomListItem extends StatelessWidget {
                     flex: 2,
                     child: SizedBox(
                         height: 200,
-                        child: Image.network(
-                            movie.GetPoster(),
-                            fit: BoxFit.fill)),
+                        child:
+                            Image.network(movie.GetPoster(), fit: BoxFit.fill)),
                   ),
                   Expanded(
                     flex: 3,
@@ -81,12 +81,10 @@ class CustomListItem extends StatelessWidget {
                                 )),
                             const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 2.0)),
-                            Text(
-                              movie.GetOverview(),
-                              style: const TextStyle(fontSize: 10.0),
-                              maxLines: 14,
-                              overflow: TextOverflow.ellipsis
-                            ),
+                            Text(movie.GetOverview(),
+                                style: const TextStyle(fontSize: 10.0),
+                                maxLines: 14,
+                                overflow: TextOverflow.ellipsis),
                           ],
                         )),
                   ),
@@ -98,29 +96,30 @@ class CustomListItem extends StatelessWidget {
 
 class Search extends StatelessWidget {
   static const String route = '/search';
-
-  const Search({Key key}) : super(key: key);
+  static const int index = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar(),
-        drawer: CustomDrawer(),
-        body: SafeArea(
-            child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: SearchBar<Movie>(
-            emptyWidget: Text('No result found'),
-            minimumChars: 0,
-            onSearch: FetchSearch,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            crossAxisCount: 1,
-            onItemFound: (Movie movie, int i) {
-              return CustomListItem(movie: movie);
-            },
-          ),
-        )));
+      appBar: AppBar(
+        title: Text('Search'),
+      ),
+      body: SafeArea(
+          child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: SearchBar<Movie>(
+          emptyWidget: Text('No result found'),
+          minimumChars: 0,
+          onSearch: FetchSearch,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          crossAxisCount: 1,
+          onItemFound: (Movie movie, int i) {
+            return CustomListItem(movie: movie);
+          },
+        ),
+      )),
+    );
   }
 }
 

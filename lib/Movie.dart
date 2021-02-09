@@ -44,6 +44,10 @@ class Movie {
     return obj['year'].toString();
   }
 
+  String GetAdded() {
+    return obj['added'].toString();
+  }
+
   String GetRating() { return obj['ratings']['value'].toString(); }
 
   String GetIMDBId() { return obj['imdbId']; }

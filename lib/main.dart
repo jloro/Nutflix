@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nutflix/AddMovie.dart';
+import 'package:nutflix/BottomNavigationBar.dart';
 import 'package:nutflix/routes.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
@@ -19,9 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        Routes.movies : (context) => Movies(),
-        Routes.search : (context) => Search(),
-        Routes.addMovie : (context) => AddMovie(),
+        Routes.movies: (context) => Movies(),
+        Routes.search: (context) => Search(),
+        Routes.addMovie: (context) => AddMovie(),
       },
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -60,6 +61,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _currentIndex = 0;
+
+  void _selectTab(int index) {
+    if (index != _currentIndex) {
+      //Navigator.pushReplacementNamed(context, Routes.routes[index]);
+      setState(() => _currentIndex = index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -69,7 +79,22 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      body: Search(),
+      body: Stack(
+        children: <Widget>[
+          Offstage(
+              offstage: _currentIndex != Movies.index,
+              child: TickerMode(
+                  enabled: _currentIndex == Movies.index, child: Movies())),
+          Offstage(
+              offstage: _currentIndex != Search.index,
+              child: TickerMode(
+                  enabled: _currentIndex == Search.index, child: Search()))
+        ],
+      ),
+      bottomNavigationBar: MyBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onSelectTab: _selectTab,
+      ),
     );
   }
 }

@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/Drawer.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'dart:developer' as developer;
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
@@ -32,6 +32,7 @@ Future<List<Movie>> fetchMovies() async {
         movie.status = movie.GetStatus(json.decode(response.body));
         movies.add(movie);
       }
+      movies.sort((a, b) => new DateFormat().add_yMMMd().format(DateTime.parse(a.GetAdded())).compareTo(b.GetAdded()));
       return movies;
     } else {
       throw Exception('Failed to load queue');
@@ -61,13 +62,27 @@ Future<String> GetDiskSizeLeft() async
     // then throw an exception.
     throw Exception('Failed to load Movie');
   }
+}
+class Movies extends StatefulWidget {
+  static const String route = '/movies';
+  static const int index = 0;
 
+  Movies({ Key key }) : super(key: key);
+
+  @override
+  _MoviesState createState() => _MoviesState();
 }
 
-class Movies extends StatelessWidget {
-  static const String route = '/movies';
-  
-  Movies({ Key key }) : super(key: key);
+class _MoviesState extends State<Movies> {
+  Future<List<Movie>> _fetchMovies = fetchMovies();
+  Future<String> _getSizeDisk = GetDiskSizeLeft();
+
+  Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () {
+    setState(() {
+      _fetchMovies = fetchMovies();
+      _getSizeDisk = GetDiskSizeLeft();
+    });
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +101,8 @@ class Movies extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: FutureBuilder<String>(
-                    future: GetDiskSizeLeft(),
+                    future: _getSizeDisk,
                     builder: (context, snapshot) {
-                      developer.log(snapshot.error.toString());
                       if (snapshot.hasData) {
                         return Text(snapshot.data);
                       } else {
@@ -102,12 +116,13 @@ class Movies extends StatelessWidget {
           ),
         )
       ),
-      drawer: CustomDrawer(),
-      body : FutureBuilder(
-          future : fetchMovies(),
+      body : FutureBuilder<List<Movie>>(
+          future : _fetchMovies,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return GridView.builder(
+              return RefreshIndicator(
+                onRefresh: _refreshWidget,
+                child: GridView.builder(
                   itemCount: snapshot.data.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
                       childAspectRatio: 2 / 3,
@@ -161,6 +176,7 @@ class Movies extends StatelessWidget {
                         )
                     );
                   }
+              )
               );
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
