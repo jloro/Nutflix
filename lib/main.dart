@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nutflix/AddMovie.dart';
 import 'package:nutflix/BottomNavigationBar.dart';
+import 'package:nutflix/InfoMovie.dart';
 import 'package:nutflix/routes.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         Routes.movies: (context) => Movies(),
         Routes.search: (context) => Search(),
         Routes.addMovie: (context) => AddMovie(),
+        Routes.infoMovie: (context) => InfoMovie()
       },
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -35,9 +37,11 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
+        primaryColor: Colors.red,
+        brightness: Brightness.dark
       ),
-      home: MyHomePage(title: 'caca'),
+      home: MyHomePage(title: 'Nutflix'),
     );
   }
 }
@@ -65,6 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _selectTab(int index) {
     if (index != _currentIndex) {
+      if (_currentIndex == Search.index)
+        FocusScope.of(context).unfocus();
       //Navigator.pushReplacementNamed(context, Routes.routes[index]);
       setState(() => _currentIndex = index);
     }

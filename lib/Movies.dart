@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/Drawer.dart';
+import 'package:nutflix/routes.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'dart:developer' as developer;
 import 'Movie.dart';
@@ -74,8 +75,15 @@ class Movies extends StatefulWidget {
 }
 
 class _MoviesState extends State<Movies> {
-  Future<List<Movie>> _fetchMovies = fetchMovies();
-  Future<String> _getSizeDisk = GetDiskSizeLeft();
+  Future<List<Movie>> _fetchMovies;
+  Future<String> _getSizeDisk;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMovies = fetchMovies();
+    _getSizeDisk = GetDiskSizeLeft();
+  }
 
   Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () {
     setState(() {
@@ -139,6 +147,10 @@ class _MoviesState extends State<Movies> {
                       circleColor = Colors.yellow;
 
                     return Container(
+                      child : InkWell(
+                        onTap: () {
+                          Navigator.pushNamed(context, Routes.infoMovie, arguments: movie);
+                        },
                         child: Card(
                           clipBehavior: Clip.antiAlias,
                           semanticContainer: true,
@@ -174,6 +186,7 @@ class _MoviesState extends State<Movies> {
                               )
                           ),
                         )
+                      )
                     );
                   }
               )
