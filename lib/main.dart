@@ -10,6 +10,7 @@ import 'dart:developer' as developer;
 
 import 'Movies.dart';
 import 'Search.dart';
+import 'SettingsPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         Routes.movies: (context) => Movies(),
         Routes.search: (context) => Search(),
         Routes.addMovie: (context) => AddMovie(),
-        Routes.infoMovie: (context) => InfoMovie()
+        Routes.infoMovie: (context) => InfoMovie(),
+        Routes.settings: (context) => Settings()
       },
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -71,7 +73,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (index != _currentIndex) {
       if (_currentIndex == Search.index)
         FocusScope.of(context).unfocus();
-      //Navigator.pushReplacementNamed(context, Routes.routes[index]);
       setState(() => _currentIndex = index);
     }
   }
@@ -94,7 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
           Offstage(
               offstage: _currentIndex != Search.index,
               child: TickerMode(
-                  enabled: _currentIndex == Search.index, child: Search()))
+                  enabled: _currentIndex == Search.index, child: Search())),
+          Offstage(
+              offstage: _currentIndex != Settings.index,
+              child: TickerMode(
+                  enabled: _currentIndex == Settings.index, child: Settings()))
+
         ],
       ),
       bottomNavigationBar: MyBottomNavigationBar(

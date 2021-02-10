@@ -85,6 +85,32 @@ class Movie {
     return json.encode(toSend);
   }
 
+  String GetMovieFileName() { return obj['movieFile']['relativePath']; }
+
+  int GetMovieSize() { return obj['movieFile']['size']; }
+
+  String GetQualityName() { return obj['movieFile']['quality']['quality']['name']; }
+
+  String GetQualitySource() { return obj['movieFile']['quality']['quality']['source']; }
+
+  String GetQualityResolution() { return obj['movieFile']['mediaInfo']['resolution']; }
+
+  int GetAudioBitrate() { return obj['movieFile']['mediaInfo']['audioBitrate']; }
+
+  double GetAudioChannels() { return obj['movieFile']['mediaInfo']['audioChannels']; }
+
+  String GetAudioCodec() { return obj['movieFile']['mediaInfo']['audioCodec']; }
+
+  String GetAudioLanguages() { return obj['movieFile']['mediaInfo']['audioLanguages']; }
+
+  int GetVideoBitDepth() { return obj['movieFile']['mediaInfo']['videoBitDepth']; }
+
+  int GetVideoBitrate() { return obj['movieFile']['mediaInfo']['videoBitrate']; }
+
+  String GetVideoCodec() { return obj['movieFile']['mediaInfo']['videoCodec']; }
+
+  double GetVideoFps() { return obj['movieFile']['mediaInfo']['videoFps']; }
+
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
       obj: json
