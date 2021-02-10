@@ -58,6 +58,7 @@ class InfoMovie extends StatefulWidget {
   @override
   _InfoMovieState createState() => _InfoMovieState();
 }
+
 class _InfoMovieState extends State<InfoMovie> {
   bool _statsForNerdsState = false;
 
@@ -148,69 +149,76 @@ class _InfoMovieState extends State<InfoMovie> {
                           MaterialStateProperty.all<Color>(Colors.red[900]),
                     ))),
             Container(
-                child: _statsForNerdsState ? Column(
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Filename:${movie.GetMovieFileName()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Size: ${(movie.GetMovieSize() * 0.000000001).toStringAsFixed(2)} GB'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Quality: ${movie.GetQualityName()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Quality Source: ${movie.GetQualitySource()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Resolution: ${movie.GetQualityResolution().toString()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Audio Bitrate: ${(movie.GetAudioBitrate() * 0.000001).toStringAsFixed(2)} MB'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Audio channels: ${movie.GetAudioChannels().toString()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Audio codec: ${movie.GetAudioCodec()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Languages: ${movie.GetAudioLanguages()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Video Bit Depth: ${movie.GetVideoBitDepth().toString()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      'Video Bitrate: ${(movie.GetVideoBitrate() * 0.000001).toStringAsFixed(2)} MB'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Video codec: ${movie.GetVideoCodec()}'),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Fps: ${movie.GetVideoFps().toString()}'),
-                )
-              ],
-            ) : Container()
-            )
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: _statsForNerdsState
+                    ? Column(
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Filename:${movie.GetMovieFileName()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Size: ${(movie.GetMovieSize() * 0.000000001).toStringAsFixed(2)} GB'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Quality: ${movie.GetQualityName()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Quality Source: ${movie.GetQualitySource()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Resolution: ${movie.GetQualityResolution().toString()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Audio Bitrate: ${(movie.GetAudioBitrate() * 0.000001).toStringAsFixed(2)} MB'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Audio channels: ${movie.GetAudioChannels().toString()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child:
+                                Text('Audio codec: ${movie.GetAudioCodec()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child:
+                                Text('Languages: ${movie.GetAudioLanguages()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Video Bit Depth: ${movie.GetVideoBitDepth().toString()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Video Bitrate: ${(movie.GetVideoBitrate() * 0.000001).toStringAsFixed(2)} MB'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child:
+                                Text('Video codec: ${movie.GetVideoCodec()}'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child:
+                                Text('Fps: ${movie.GetVideoFps().toString()}'),
+                          )
+                        ],
+                      )
+                    : Container())
           ],
         ));
   }
