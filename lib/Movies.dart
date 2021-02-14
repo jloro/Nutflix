@@ -31,9 +31,10 @@ Future<List<Movie>> fetchMovies() async {
       for (int i = 0; i < list.length; i++) {
         Movie movie = Movie(obj: list[i]);
         movie.status = movie.GetStatus(json.decode(response.body));
+        developer.log('${movie.GetAdded()} ${new DateFormat().format(DateTime.parse(movie.GetAdded())).toString()}  ${movie.GetTitle()}');
         movies.add(movie);
       }
-      movies.sort((a, b) => new DateFormat().add_yMMMd().format(DateTime.parse(a.GetAdded())).compareTo(b.GetAdded()));
+      movies.sort((a, b) => DateTime.parse(b.GetAdded()).compareTo(DateTime.parse(a.GetAdded())));
       return movies;
     } else {
       throw Exception('Failed to load queue');

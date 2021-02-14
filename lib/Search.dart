@@ -108,6 +108,9 @@ class Search extends StatelessWidget {
           child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: SearchBar<Movie>(
+          textStyle: TextStyle(
+            color: Colors.white
+          ),
           emptyWidget: Text('No result found'),
           minimumChars: 0,
           onSearch: FetchSearch,
