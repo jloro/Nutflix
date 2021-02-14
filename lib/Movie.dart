@@ -76,6 +76,10 @@ class Movie {
 
   int GetId() { return obj['id']; }
 
+  List<String> GetGenres() { return new List<String>.from(obj['genres']);}
+
+  int GetRuntime() { return obj['runtime']; }
+
   String ToJson()
   {
     Map<String, dynamic> toSend = obj;

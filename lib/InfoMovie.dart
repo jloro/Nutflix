@@ -116,8 +116,16 @@ class _InfoMovieState extends State<InfoMovie> {
     final Movie movie = ModalRoute.of(context).settings.arguments;
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
-        body: Column(
+        body: ListView(
           children: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage(movie.GetFanart()),
+                            fit: BoxFit.cover)))),
             Align(
               alignment: Alignment.center,
               child: Text(
@@ -127,7 +135,29 @@ class _InfoMovieState extends State<InfoMovie> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'duree: ${(movie.GetRuntime() / 60).floor()}h${(movie.GetRuntime() % 60).toString().padLeft(2, '0')}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'genres: ${movie.GetGenres().join(', ')}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20),
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
@@ -149,7 +179,7 @@ class _InfoMovieState extends State<InfoMovie> {
                           MaterialStateProperty.all<Color>(Colors.red[900]),
                     ))),
             Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
                 child: _statsForNerdsState
                     ? Column(
                         children: <Widget>[
