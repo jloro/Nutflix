@@ -11,12 +11,12 @@ import 'Movie.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 
-Future<bool> AddRadarrMovie(Movie movie) async {
+Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
   var response = await http.post('https://nutflix.fr/radarr/api/v3/movie',
       headers: {
         HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
       },
-      body: movie.ToJson());
+      body: movie.ToJson(ultrahd));
 
   if (response.statusCode == 201) {
     // If the server did return a 200 OK response,
@@ -82,8 +82,17 @@ class _AddMovieState extends State<AddMovie> {
   @override
   Widget build(BuildContext context) {
     final Movie movie = ModalRoute.of(context).settings.arguments;
-    void Function() addOnPressed;
-    void Function() plexOnPressed;
+
+    void Function(bool) addOnPressed;
+
+    void _OnTapAdd(bool ultrahd) async {
+        setState(() {
+          addIsInactive = true;
+          addOnPressed = null;
+        });
+        await AddRadarrMovie(movie, ultrahd);
+    }
+
 
     return Scaffold(
         appBar: CustomAppBar(),
@@ -166,23 +175,11 @@ class _AddMovieState extends State<AddMovie> {
                       future: HasMovie(movie),
                       builder:
                           (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                        developer.log(snapshot.hasData.toString());
-
                         if (snapshot.hasData) {
                           if (!snapshot.data) {
-                            addOnPressed = () async {
-                              setState(() {
-                                addIsInactive = true;
-                                addOnPressed = null;
-                                plexOnPressed = () {};
-                              });
-
-                              await AddRadarrMovie(movie);
-                            };
-                            plexOnPressed = null;
+                            addOnPressed = _OnTapAdd;
                           } else {
                             addOnPressed = null;
-                            plexOnPressed = () {};
                           }
 
                           return Column(
@@ -192,7 +189,7 @@ class _AddMovieState extends State<AddMovie> {
                                 flex: 2,
                                 child: ElevatedButton(
                                   onPressed:
-                                      addIsInactive ? null : addOnPressed,
+                                      addIsInactive ? null : () { addOnPressed(false);} ,
                                   child: const Text('Add',
                                       style: TextStyle(fontSize: 20)),
                                 ),
@@ -200,8 +197,8 @@ class _AddMovieState extends State<AddMovie> {
                               Flexible(
                                 flex: 2,
                                 child: ElevatedButton(
-                                  onPressed: plexOnPressed,
-                                  child: const Text('View on plex',
+                                  onPressed: addIsInactive ? null : () { addOnPressed(true);},
+                                  child: const Text('Add in 4k',
                                       style: TextStyle(fontSize: 20)),
                                 ),
                               )

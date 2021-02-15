@@ -71,7 +71,7 @@ class _InfoMovieState extends State<InfoMovie> {
   _loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _statsForNerdsState = (prefs.getBool(PlayerPrefs.statsForNerds) ?? false);
+      _statsForNerdsState = (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
     });
   }
 
@@ -114,6 +114,7 @@ class _InfoMovieState extends State<InfoMovie> {
   @override
   Widget build(BuildContext context) {
     final Movie movie = ModalRoute.of(context).settings.arguments;
+
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
         body: ListView(
@@ -180,7 +181,7 @@ class _InfoMovieState extends State<InfoMovie> {
                     ))),
             Container(
                 padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
-                child: _statsForNerdsState
+                child: _statsForNerdsState && movie.status == Status.Downloaded
                     ? Column(
                         children: <Widget>[
                           Align(

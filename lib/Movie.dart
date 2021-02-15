@@ -80,10 +80,10 @@ class Movie {
 
   int GetRuntime() { return obj['runtime']; }
 
-  String ToJson()
+  String ToJson(bool ultrahd)
   {
     Map<String, dynamic> toSend = obj;
-    toSend['qualityProfileId'] = 1;
+    toSend['qualityProfileId'] = ultrahd ? 5 : 1;
     toSend['path'] = '/home/jules/Videos/${GetTitle()} ${GetYear()}';
     toSend['monitored'] = true;
     return json.encode(toSend);

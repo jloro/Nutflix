@@ -1,4 +1,12 @@
 class PlayerPrefs
 {
-  static const String statsForNerds = "statsForNerds";
+  static const String statsForNerdsKey = "statsForNerds";
+  static bool statsForNerds = false;
+
+  static const String radarrApiKeyKey = "radarrApiKey";
+  static String radarrApiKey;
+
+  static const String radarrURLKey = "radarrURL";
+  static String radarrURL;
+
 }
