@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'Downloads.dart';
 import 'Movies.dart';
 import 'PlayerPrefs.dart';
 import 'Search.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
         Routes.search: (context) => Search(),
         Routes.addMovie: (context) => AddMovie(),
         Routes.infoMovie: (context) => InfoMovie(),
-        Routes.settings: (context) => Settings()
+        Routes.settings: (context) => Settings(),
+        Routes.downloading: (context) => Downloads()
       },
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -101,7 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Offstage(
               offstage: _currentIndex != Settings.index,
               child: TickerMode(
-                  enabled: _currentIndex == Settings.index, child: Settings()))
+                  enabled: _currentIndex == Settings.index, child: Settings())),
+          Offstage(
+              offstage: _currentIndex != Downloads.index,
+              child: TickerMode(
+                  enabled: _currentIndex == Downloads.index, child: Downloads())),
 
         ],
       ),

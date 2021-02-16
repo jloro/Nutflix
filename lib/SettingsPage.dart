@@ -6,7 +6,7 @@ import 'dart:developer' as developer;
 
 class Settings extends StatefulWidget {
   static const String route = '/settings';
-  static const int index = 2;
+  static const int index = 3;
 
   @override
   _SettingsState createState() => _SettingsState();

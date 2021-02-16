@@ -144,6 +144,7 @@ class _MoviesState extends State<Movies> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return RefreshIndicator(
+                displacement: 30,
                 onRefresh: _refreshWidget,
                 child: GridView.builder(
                   itemCount: snapshot.data.length,

@@ -1,0 +1,146 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:http/http.dart' as http;
+
+import 'Movie.dart';
+import 'PlayerPrefs.dart';
+import 'dart:developer' as developer;
+
+Future<List<dynamic>> FetchDownloads() async {
+  final response = await http.get(
+      'https://nutflix.fr/sabnzbd/api?mode=queue&apikey=9756bf7891504405ac9db4f26e0aa3e4&output=json');
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    Map<String, dynamic> map = json.decode(response.body);
+    return map['queue']['slots'];
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load Movie');
+  }
+}
+
+Future<String> FetchSpeed() async {
+  final response = await http.get(
+      'https://nutflix.fr/sabnzbd/api?mode=queue&apikey=9756bf7891504405ac9db4f26e0aa3e4&output=json');
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    Map<String, dynamic> map = json.decode(response.body);
+    return map['queue']['speed'];
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load Movie');
+  }
+}
+
+class Downloads extends StatefulWidget {
+  static const String route = '/downloading';
+  static const int index = 2;
+
+  @override
+  _DownloadsState createState() => _DownloadsState();
+}
+
+class _DownloadsState extends State<Downloads> {
+  Timer timer;
+  Future<List<dynamic>> _fetchDownloads;
+  Future<String> _fetchSpeed;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
+      setState(() {
+        _fetchDownloads = FetchDownloads();
+        _fetchSpeed = FetchSpeed();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Align(
+                  alignment: Alignment.centerLeft,
+                    child: Text('Downloads'),
+                )),
+                Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: FutureBuilder<String>(
+                        future: _fetchSpeed,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text('${snapshot.data}/s');
+                          } else {
+                            return Text('');
+                          }
+                        },
+                      ),
+                    )),
+              ]),
+        ),
+        body: FutureBuilder<List<dynamic>>(
+            future: FetchDownloads(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data.length > 0)
+                  return ListView.builder(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, i) {
+                        dynamic movie = snapshot.data[i];
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            child: Column(children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 10),
+                              child: Text(movie['filename'])
+                          ),
+                          Stack(
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text('${movie['percentage']}%')
+                              ),
+                              LinearPercentIndicator(
+                                padding: EdgeInsets.only(left: 20),
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                lineHeight: 14.0,
+                                percent: double.parse(movie['percentage']) / 100.0,
+                                backgroundColor: Colors.grey,
+                                progressColor: Colors.blue,
+                              )
+                            ],
+                          )
+                        ]));
+                      });
+                else
+                  return Text('No Downloads');
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              // By default, show a loading spinner.
+              return CircularProgressIndicator();
+            }));
+  }
+}
