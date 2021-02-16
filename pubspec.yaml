@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.12.2
-  flappy_search_bar: 1.4.1
+  flappy_search_bar: ^1.7.2
   intl: ^0.16.1
   url_launcher: ^5.7.10
   transparent_image: ^1.0.0

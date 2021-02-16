@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/Drawer.dart';
 import 'package:intl/intl.dart';
+import 'package:nutflix/PlayerPrefs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'Movie.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 
 Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
-  var response = await http.post('https://nutflix.fr/radarr/api/v3/movie',
+  var response = await http.post('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       },
       body: movie.ToJson(ultrahd));
 
@@ -22,9 +23,9 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     Map<String, dynamic> obj = json.decode(response.body);
-    response = await http.post('https://nutflix.fr/radarr/api/v3/command',
+    response = await http.post('${PlayerPrefs.radarrURL}/api/v3/command',
         headers: {
-          HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+          HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
         },
         body: json.encode({
           'name': 'MoviesSearch',
@@ -43,9 +44,9 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
 }
 
 Future<bool> HasMovie(Movie movie) async {
-  final response = await http.get('https://nutflix.fr/radarr/api/v3/movie',
+  final response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       });
 
   if (response.statusCode == 200) {

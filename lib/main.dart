@@ -5,10 +5,12 @@ import 'package:nutflix/AddMovie.dart';
 import 'package:nutflix/BottomNavigationBar.dart';
 import 'package:nutflix/InfoMovie.dart';
 import 'package:nutflix/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'Movies.dart';
+import 'PlayerPrefs.dart';
 import 'Search.dart';
 import 'SettingsPage.dart';
 

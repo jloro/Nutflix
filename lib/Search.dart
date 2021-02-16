@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/BottomNavigationBar.dart';
 import 'package:nutflix/Drawer.dart';
+import 'package:nutflix/PlayerPrefs.dart';
 import 'package:nutflix/routes.dart';
 import 'dart:developer' as developer;
 
@@ -15,9 +16,9 @@ import 'Movie.dart';
 
 Future<List<Movie>> FetchSearch(String search) async {
   final response = await http.get(
-      'https://nutflix.fr/radarr/api/v3/movie/lookup?term=$search',
+      '${PlayerPrefs.radarrURL}/api/v3/movie/lookup?term=$search',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       });
 
   if (response.statusCode == 200) {

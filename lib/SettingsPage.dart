@@ -13,7 +13,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-
   _resetPlayerPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -23,18 +22,6 @@ class _SettingsState extends State<Settings> {
       prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
       prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
       prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
-    });
-  }
-
-  _loadPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      PlayerPrefs.statsForNerds =
-      (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
-      PlayerPrefs.radarrURL =
-      (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
-      PlayerPrefs.radarrApiKey =
-      (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
     });
   }
 
@@ -65,7 +52,6 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
   }
 
   @override
@@ -73,26 +59,24 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(
           title: Container(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Settings'),
-                  ),
-                ),
-                Expanded(
-                    child: Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          icon: Icon(Icons.loop),
-                          onPressed: _resetPlayerPrefs,
-                        ))
-                )
-              ],
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Settings'),
+              ),
             ),
-          )
-      ),
+            Expanded(
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(Icons.loop),
+                      onPressed: _resetPlayerPrefs,
+                    )))
+          ],
+        ),
+      )),
       body: Container(
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
           child: Column(children: <Widget>[
@@ -115,36 +99,60 @@ class _SettingsState extends State<Settings> {
                 ])),
             Container(
                 child: Column(children: <Widget>[
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Radarr settings',
-                        style: TextStyle(fontSize: 30),
-                      )),
-                  Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: TextField(
-                        controller: TextEditingController(
-                            text: PlayerPrefs.radarrApiKey),
-                        onChanged: _changeRadarrApiKey,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Api key'),
-                      )),
-                  Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: TextField(
-                        controller: TextEditingController(
-                            text: PlayerPrefs.radarrURL),
-                        onChanged: _changeRadarrURL,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Radarr URL'),
-                      )),
-                ])),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Radarr settings',
+                    style: TextStyle(fontSize: 30),
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: MyTextField(
+                      onChanged: _changeRadarrApiKey,
+                      autocorrect: false,
+                      decoration: InputDecoration(
+                          labelText: 'Api key',
+                          border: OutlineInputBorder(),
+                          hintText: 'Api key'),
+                      text: PlayerPrefs.radarrApiKey)),
+              Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: MyTextField(
+                      onChanged: _changeRadarrURL,
+                      autocorrect: false,
+                      decoration: InputDecoration(
+                          labelText: 'Radarr URL',
+                          border: OutlineInputBorder(),
+                          hintText: 'Radarr URL'),
+                      text: PlayerPrefs.radarrURL)),
+            ])),
           ])),
     );
+  }
+}
+
+class MyTextField extends StatelessWidget {
+  final String text;
+  final Function(String) onChanged;
+  final bool autocorrect;
+  final InputDecoration decoration;
+  TextField textfield;
+
+  TextEditingController controller;
+
+  MyTextField({this.text, this.onChanged, this.autocorrect, this.decoration});
+
+  @override
+  Widget build(BuildContext context) {
+    controller = TextEditingController(text: text);
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
+    textfield = TextField(
+      onChanged: onChanged,
+      autocorrect: autocorrect,
+      decoration: decoration,
+      controller: controller,
+    );
+    return textfield;
   }
 }

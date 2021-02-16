@@ -7,24 +7,26 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:nutflix/AppBar.dart';
 import 'package:nutflix/Drawer.dart';
+import 'package:nutflix/PlayerPrefs.dart';
 import 'package:nutflix/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
-  var response = await http.get('https://nutflix.fr/radarr/api/v3/movie',
+  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       });
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     List<dynamic> list = json.decode(response.body);
-    response = await http.get('https://nutflix.fr/radarr/api/v3/queue',
+    response = await http.get('${PlayerPrefs.radarrURL}/api/v3/queue',
         headers: {
-          HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+          HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
         });
     if (response.statusCode == 200) {
       List<Movie> movies = List<Movie>();
@@ -47,9 +49,9 @@ Future<List<Movie>> fetchMovies() async {
 
 Future<String> GetDiskSizeLeft() async
 {
-  var response = await http.get('https://nutflix.fr/radarr/api/v3/diskspace',
+  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/diskspace',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       });
 
   if (response.statusCode == 200) {
@@ -78,11 +80,24 @@ class _MoviesState extends State<Movies> {
   Future<List<Movie>> _fetchMovies;
   Future<String> _getSizeDisk;
 
+  _loadPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      PlayerPrefs.statsForNerds =
+      (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
+      PlayerPrefs.radarrURL =
+      (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
+      PlayerPrefs.radarrApiKey =
+      (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
+      _fetchMovies = fetchMovies();
+      _getSizeDisk = GetDiskSizeLeft();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _fetchMovies = fetchMovies();
-    _getSizeDisk = GetDiskSizeLeft();
+    _loadPrefs();
   }
 
   Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () {

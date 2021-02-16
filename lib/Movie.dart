@@ -57,7 +57,6 @@ class Movie {
   bool GetIsAvailable() { return obj['isAvailable']; }
 
   Status GetStatus(Map<String, dynamic> body) {
-//    await http.get('https://nutflix.fr/radarr/api/v3/queue', headers : {HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'});
       if (body['totalRecords'] != 0)
       {
         List<dynamic> queue = body['records'];

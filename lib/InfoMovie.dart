@@ -11,9 +11,9 @@ import 'Movie.dart';
 import 'PlayerPrefs.dart';
 
 void DeleteMovie(Movie movie) async {
-  var response = await http.get('https://nutflix.fr/radarr/api/v3/queue',
+  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/queue',
       headers: {
-        HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
       });
 
   if (response.statusCode == 200) {
@@ -23,27 +23,25 @@ void DeleteMovie(Movie movie) async {
       int id = list
           .firstWhere((element) => element['movieId'] == movie.GetId())['id'];
       response = await http.delete(
-          'https://nutflix.fr/radarr/api/v3/queue/$id?removeFromClient=true',
+          '${PlayerPrefs.radarrURL}/api/v3/queue/$id?removeFromClient=true',
           headers: {
-            HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+            HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
           });
       if (response.statusCode == 200) {
         response = await http.delete(
-            'https://nutflix.fr/radarr/api/v3/movie/${movie.GetId()}?deleteFiles=true',
+            '${PlayerPrefs.radarrURL}/api/v3/movie/${movie.GetId()}?deleteFiles=true',
             headers: {
-              HttpHeaders.authorizationHeader:
-                  'aaaedca659fa4206bc50153292ba6da2'
+              HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
             });
-        developer.log(response.body);
         return;
       } else {
         throw Exception('Failed to delete movie');
       }
     } else {
       response = await http.delete(
-          'https://nutflix.fr/radarr/api/v3/movie/${movie.GetId()}?deleteFiles=true',
+          '${PlayerPrefs.radarrURL}/api/v3/movie/${movie.GetId()}?deleteFiles=true',
           headers: {
-            HttpHeaders.authorizationHeader: 'aaaedca659fa4206bc50153292ba6da2'
+            HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
           });
       developer.log(response.body);
     }
