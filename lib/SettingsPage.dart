@@ -71,7 +71,7 @@ class _SettingsState extends State<Settings> {
                 child: Align(
                     alignment: Alignment.centerRight,
                     child: IconButton(
-                      icon: Icon(Icons.loop),
+                      icon: Icon(Icons.delete_forever),
                       onPressed: _resetPlayerPrefs,
                     )))
           ],
