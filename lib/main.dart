@@ -72,6 +72,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
+  final GlobalKey<MyBottomNavigationBarState> key = GlobalKey();
 
   void _selectTab(int index) {
     if (index != _currentIndex) {
@@ -107,11 +108,12 @@ class _MyHomePageState extends State<MyHomePage> {
           Offstage(
               offstage: _currentIndex != Downloads.index,
               child: TickerMode(
-                  enabled: _currentIndex == Downloads.index, child: Downloads())),
+                  enabled: _currentIndex == Downloads.index, child: Downloads(barKey: key,))),
 
         ],
       ),
       bottomNavigationBar: MyBottomNavigationBar(
+        key: key,
         currentIndex: _currentIndex,
         onSelectTab: _selectTab,
       ),

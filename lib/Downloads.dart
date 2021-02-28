@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:http/http.dart' as http;
 
+import 'BottomNavigationBar.dart';
 import 'Movie.dart';
 import 'PlayerPrefs.dart';
 import 'dart:developer' as developer;
@@ -46,7 +47,9 @@ Future<String> FetchSpeed() async {
 class Downloads extends StatefulWidget {
   static const String route = '/downloading';
   static const int index = 2;
+  final GlobalKey<MyBottomNavigationBarState> barKey;
 
+  Downloads({this.barKey});
   @override
   _DownloadsState createState() => _DownloadsState();
 }
@@ -55,6 +58,7 @@ class _DownloadsState extends State<Downloads> {
   Timer timer;
   Future<List<dynamic>> _fetchDownloads;
   Future<String> _fetchSpeed;
+  int _length = 0;
 
   @override
   void initState() {
@@ -63,6 +67,7 @@ class _DownloadsState extends State<Downloads> {
       setState(() {
         _fetchDownloads = FetchDownloads();
         _fetchSpeed = FetchSpeed();
+        this.widget.barKey.currentState.updateDownloads(_length);
       });
     });
   }
@@ -104,6 +109,7 @@ class _DownloadsState extends State<Downloads> {
             future: FetchDownloads(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                _length = snapshot.data.length;
                 if (snapshot.data.length > 0)
                   return ListView.builder(
                       itemCount: snapshot.data.length,
