@@ -33,6 +33,12 @@ dependencies:
   cupertino_icons: ^1.0.0
   shared_preferences: ^0.5.12+4
   percent_indicator: ^2.1.9+1
+  flutter_launcher_icons: ^0.8.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
 
 dev_dependencies:
   flutter_test:
