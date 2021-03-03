@@ -50,6 +50,7 @@ class Downloads extends StatefulWidget {
   final GlobalKey<MyBottomNavigationBarState> barKey;
 
   Downloads({this.barKey});
+
   @override
   _DownloadsState createState() => _DownloadsState();
 }
@@ -82,28 +83,27 @@ class _DownloadsState extends State<Downloads> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Align(
-                  alignment: Alignment.centerLeft,
-                    child: Text('Downloads'),
-                )),
-                Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: FutureBuilder<String>(
-                        future: _fetchSpeed,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Text('${snapshot.data}/s');
-                          } else {
-                            return Text('');
-                          }
-                        },
-                      ),
-                    )),
-              ]),
+          title: Row(children: <Widget>[
+            Expanded(
+                child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Downloads'),
+            )),
+            Expanded(
+                child: Align(
+              alignment: Alignment.centerRight,
+              child: FutureBuilder<String>(
+                future: _fetchSpeed,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text('${snapshot.data}/s');
+                  } else {
+                    return Text('');
+                  }
+                },
+              ),
+            )),
+          ]),
         ),
         body: FutureBuilder<List<dynamic>>(
             future: FetchDownloads(),
@@ -116,29 +116,42 @@ class _DownloadsState extends State<Downloads> {
                       itemBuilder: (context, i) {
                         dynamic movie = snapshot.data[i];
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
                             child: Column(children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 10),
-                              child: Text(movie['filename'])
-                          ),
-                          Stack(
-                            children: <Widget>[
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Text('${movie['percentage']}%')
+                              Padding(
+                                  padding: EdgeInsets.only(bottom: 10),
+                                  child: Text(movie['filename'])),
+                              Stack(
+                                children: <Widget>[
+                                  Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text('${movie['percentage']}%')),
+                                  LinearPercentIndicator(
+                                    padding: EdgeInsets.only(left: 20),
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    lineHeight: 14.0,
+                                    percent: double.parse(movie['percentage']) /
+                                        100.0,
+                                    backgroundColor: Colors.grey,
+                                    progressColor: Colors.blue,
+                                  )
+                                ],
                               ),
-                              LinearPercentIndicator(
-                                padding: EdgeInsets.only(left: 20),
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                lineHeight: 14.0,
-                                percent: double.parse(movie['percentage']) / 100.0,
-                                backgroundColor: Colors.grey,
-                                progressColor: Colors.blue,
+                              Stack(
+                                children: <Widget>[
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                      child: Text(
+                                          '${(double.parse(movie['mb']) / 1000 - double.parse(movie['mbleft']) / 1000).toStringAsFixed(1)} / ${movie['size']}')),
+                                  Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                          'Time left: ${movie['timeleft']}'))
+                                ],
                               )
-                            ],
-                          )
-                        ]));
+                            ]));
                       });
                 else
                   return Text('No Downloads');
