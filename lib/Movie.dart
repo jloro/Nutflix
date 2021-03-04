@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:nutflix/PlayerPrefs.dart';
 
 enum Status {
   Unavailable,
@@ -82,7 +83,7 @@ class Movie {
   String ToJson(bool ultrahd)
   {
     Map<String, dynamic> toSend = obj;
-    toSend['qualityProfileId'] = ultrahd ? 5 : 1;
+    toSend['qualityProfileId'] = ultrahd ? 5 : PlayerPrefs.defaultProfile;
     toSend['path'] = '/home/jules/Videos/${GetTitle()} ${GetYear()}';
     toSend['monitored'] = true;
     return json.encode(toSend);

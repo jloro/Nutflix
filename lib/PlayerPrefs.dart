@@ -9,4 +9,7 @@ class PlayerPrefs
   static const String radarrURLKey = "radarrURL";
   static String radarrURL;
 
+  static const String defaultProfileKey = "defaultProfile";
+  static int defaultProfile = 1;
+
 }
