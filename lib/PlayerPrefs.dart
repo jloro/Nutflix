@@ -12,4 +12,9 @@ class PlayerPrefs
   static const String defaultProfileKey = "defaultProfile";
   static int defaultProfile = 1;
 
+  static const String uhdProfileKey = "uhdProfile";
+  static int uhdProfile = 5;
+
+  static const String folderNamingFormatKey = "folderNamingFormat";
+  static String folderNamingFormat;
 }

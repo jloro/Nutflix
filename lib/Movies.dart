@@ -139,14 +139,14 @@ class _MoviesState extends State<Movies> {
           ),
         )
       ),
-      body : FutureBuilder<List<Movie>>(
+      body : RefreshIndicator(
+      displacement: 30,
+      onRefresh: _refreshWidget,
+      child : FutureBuilder<List<Movie>>(
           future : _fetchMovies,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return RefreshIndicator(
-                displacement: 30,
-                onRefresh: _refreshWidget,
-                child: GridView.builder(
+              return  GridView.builder(
                   itemCount: snapshot.data.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
                       childAspectRatio: 2 / 3,
@@ -205,16 +205,21 @@ class _MoviesState extends State<Movies> {
                       )
                     );
                   }
-              )
               );
             } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
+              return SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                  child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: Text("${snapshot.error}")
+                  )
+              );
             }
             // By default, show a loading spinner.
             return CircularProgressIndicator();
           }
       ),
-    );
+    ));
   }
 
 }

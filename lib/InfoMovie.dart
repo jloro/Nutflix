@@ -76,13 +76,13 @@ class _InfoMovieState extends State<InfoMovie> {
   showAlertDialog(BuildContext context, Movie movie) {
     // set up the buttons
     Widget cancelButton = ElevatedButton(
-      child: Text("no uwu"),
+      child: Text("No"),
       onPressed: () {
         Navigator.pop(context);
       },
     );
     Widget continueButton = ElevatedButton(
-      child: Text("VI"),
+      child: Text("Yes"),
       onPressed: () {
         DeleteMovie(movie);
         Navigator.pop(context);
@@ -92,8 +92,8 @@ class _InfoMovieState extends State<InfoMovie> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Supprimer"),
-      content: Text("T sur frr ?"),
+      title: Text("Delete"),
+      content: Text("Are you sure ?"),
       actions: [
         cancelButton,
         continueButton,
@@ -169,7 +169,7 @@ class _InfoMovieState extends State<InfoMovie> {
             Padding(
                 padding: EdgeInsets.only(top: 20, bottom: 20),
                 child: ElevatedButton(
-                    child: Text('Supprimer'),
+                    child: Text('Delete'),
                     onPressed: () {
                       showAlertDialog(context, movie);
                     },

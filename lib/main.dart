@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         Routes.settings: (context) => Settings(),
         Routes.downloading: (context) => Downloads()
       },
-      title: 'Flutter Demo',
+      title: 'Notflix',
       theme: ThemeData(
         // This is the theme of your application.
         //

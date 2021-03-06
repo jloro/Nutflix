@@ -94,7 +94,6 @@ class _AddMovieState extends State<AddMovie> {
         await AddRadarrMovie(movie, ultrahd);
     }
 
-
     return Scaffold(
         appBar: CustomAppBar(),
         body: Column(children: <Widget>[
@@ -177,10 +176,11 @@ class _AddMovieState extends State<AddMovie> {
                       builder:
                           (BuildContext context, AsyncSnapshot<bool> snapshot) {
                         if (snapshot.hasData) {
-                          if (!snapshot.data) {
+                          if (!snapshot.data && addOnPressed == null) {
+                            addIsInactive = false;
                             addOnPressed = _OnTapAdd;
                           } else {
-                            addOnPressed = null;
+                            addIsInactive = true;
                           }
 
                           return Column(

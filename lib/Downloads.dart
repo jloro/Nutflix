@@ -115,13 +115,17 @@ class _DownloadsState extends State<Downloads> {
                       itemCount: snapshot.data.length,
                       itemBuilder: (context, i) {
                         dynamic movie = snapshot.data[i];
+                        RegExp exp = RegExp(r"^((?:(?: ?.* )+)(?:\ ?\d+ ))(?: ?.* )*\d*p");
+                        Iterable<RegExpMatch> matches = exp.allMatches(movie['filename'].toString().replaceAll('.', ' ').replaceAll(RegExp(' +'), ' '));
+                        String movieName = matches.first.groupCount > 0 ? matches.first.group(1) : matches.first[0];
+                        // developer.log();
                         return Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 10),
                             child: Column(children: <Widget>[
                               Padding(
                                   padding: EdgeInsets.only(bottom: 10),
-                                  child: Text(movie['filename'])),
+                                  child: Text(movieName)),
                               Stack(
                                 children: <Widget>[
                                   Align(
