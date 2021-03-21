@@ -92,6 +92,20 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+  _changeSabURL(String url) async {
+    setState(() {
+      PlayerPrefs.sabURL = url;
+      prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
+    });
+  }
+
+  _changeSabApiKey(String url) async {
+    setState(() {
+      PlayerPrefs.sabApiKey = url;
+      prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+    });
+  }
+
   _changeDefaultProfile(int profile) async {
     setState(() {
       PlayerPrefs.defaultProfile = profile;
@@ -127,6 +141,10 @@ class _SettingsState extends State<Settings> {
       PlayerPrefs.uhdProfile = (prefs.getInt(PlayerPrefs.uhdProfileKey) ?? 5);
       PlayerPrefs.folderNamingFormat =
           (prefs.getString(PlayerPrefs.folderNamingFormatKey) ?? null);
+      PlayerPrefs.sabURL =
+        (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
+      PlayerPrefs.sabApiKey =
+        (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
     });
   }
 
@@ -380,6 +398,36 @@ class _SettingsState extends State<Settings> {
                     )
                   )
             ])),
+            Padding(
+              padding: EdgeInsets.only(top: 40),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Sabnzbd settings',
+                    style: TextStyle(fontSize: 30),
+                  )
+                )),
+            Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: MyTextField(
+                    onChanged: _changeSabApiKey,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                        labelText: 'Api key',
+                        border: OutlineInputBorder(),
+                        hintText: 'Api key'),
+                    text: PlayerPrefs.sabApiKey)),
+            Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: MyTextField(
+                    onChanged: _changeSabURL,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                        labelText: 'Sabnzbd URL',
+                        border: OutlineInputBorder(),
+                        hintText: 'Sabnzbd URL'),
+                    text: PlayerPrefs.sabURL)),
+
           ]))),
     );
   }

@@ -38,7 +38,7 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/not cercle fond blanc.png"
+  image_path: "assets/logo.png"
 
 dev_dependencies:
   flutter_test:

@@ -14,7 +14,7 @@ import 'dart:developer' as developer;
 
 Future<List<dynamic>> FetchDownloads() async {
   final response = await http.get(
-      'https://nutflix.fr/sabnzbd/api?mode=queue&apikey=9756bf7891504405ac9db4f26e0aa3e4&output=json');
+      '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -30,7 +30,7 @@ Future<List<dynamic>> FetchDownloads() async {
 
 Future<String> FetchSpeed() async {
   final response = await http.get(
-      'https://nutflix.fr/sabnzbd/api?mode=queue&apikey=9756bf7891504405ac9db4f26e0aa3e4&output=json');
+      '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,

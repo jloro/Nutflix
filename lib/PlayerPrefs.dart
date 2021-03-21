@@ -17,4 +17,10 @@ class PlayerPrefs
 
   static const String folderNamingFormatKey = "folderNamingFormat";
   static String folderNamingFormat;
+
+  static const String sabApiKeyKey = "sabApiKey";
+  static String sabApiKey;
+
+  static const String sabURLKey = "sabURL";
+  static String sabURL;
 }
