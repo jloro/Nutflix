@@ -8,6 +8,7 @@ import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   static const String route = '/settings';
@@ -27,7 +28,7 @@ class _SettingsState extends State<Settings> {
   SharedPreferences prefs;
   List<dynamic> profiles;
 
-  showAlertDialog(BuildContext context) {
+  showAlertDialogConfirm(BuildContext context) {
     // set up the buttons
     Widget cancelButton = ElevatedButton(
       child: Text("No"),
@@ -61,6 +62,38 @@ class _SettingsState extends State<Settings> {
       },
     );
   }
+  showAlertDialogAbout(BuildContext context) {
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("About"),
+      content: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "This app is intended for personal and non commercial use only.\nAll movies metadata and poster are from TMDB (",
+            ),
+            WidgetSpan(
+              child: InkWell(
+                child: new Text(' https://www.themoviedb.org/ ', style: TextStyle(fontSize: 14, color: Colors.blue),),
+                onTap: () => launch('https://www.themoviedb.org/')
+            )),
+        TextSpan(
+          text: ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.",
+        ),
+
+          ],
+        ),
+      ),
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 
   _resetPlayerPrefs() async {
     setState(() {
@@ -69,12 +102,16 @@ class _SettingsState extends State<Settings> {
       PlayerPrefs.radarrApiKey = null;
       PlayerPrefs.defaultProfile = 1;
       PlayerPrefs.uhdProfile = 5;
+      PlayerPrefs.sabURL = null;
+      PlayerPrefs.sabApiKey = null;
 
       prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
       prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
       prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
       prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
       prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
+      prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
+      prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
     });
   }
 
@@ -226,7 +263,7 @@ class _SettingsState extends State<Settings> {
                     child: IconButton(
                       icon: Icon(Icons.delete_forever),
                       onPressed: (){
-                        showAlertDialog(context);
+                        showAlertDialogConfirm(context);
                       },
                     )))
           ],
@@ -427,6 +464,31 @@ class _SettingsState extends State<Settings> {
                         border: OutlineInputBorder(),
                         hintText: 'Sabnzbd URL'),
                     text: PlayerPrefs.sabURL)),
+            Padding(
+              padding: EdgeInsets.only(top: 40),
+              child: TextButton(
+                onPressed: ()
+                {
+                  showAlertDialogAbout(context);
+                },
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        style: TextStyle(
+                            fontSize: 18
+                        ),
+                        text: "about ",
+                      ),
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Icon(Icons.info, color: Colors.white),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            )
 
           ]))),
     );
