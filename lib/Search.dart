@@ -61,13 +61,10 @@ class CustomListItem extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(
+                  SizedBox(
                         width: 100,
                         child:
                             Image.network(movie.GetPoster(), fit: BoxFit.fill)),
-                  ),
                   Expanded(
                     flex: 3,
                     child: Padding(
@@ -84,7 +81,7 @@ class CustomListItem extends StatelessWidget {
                                 padding: EdgeInsets.symmetric(vertical: 2.0)),
                             Text(movie.GetOverview(),
                                 style: const TextStyle(fontSize: 10.0),
-                                maxLines: 14,
+                                maxLines: 9,
                                 overflow: TextOverflow.ellipsis),
                           ],
                         )),
