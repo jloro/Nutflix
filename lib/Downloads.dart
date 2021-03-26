@@ -13,6 +13,11 @@ import 'PlayerPrefs.dart';
 import 'dart:developer' as developer;
 
 Future<List<dynamic>> FetchDownloads() async {
+  if (PlayerPrefs.sabURL == null || PlayerPrefs.sabURL == "")
+    throw Exception('No sabnzbd URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
+    throw Exception('No sabnzbd api key specified, go to settings to specified it.');
+
   final response = await http.get(
       '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
 
@@ -24,7 +29,7 @@ Future<List<dynamic>> FetchDownloads() async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load Movie');
+    throw Exception('Failed to load Downloads, check your sabnzbd settings.');
   }
 }
 

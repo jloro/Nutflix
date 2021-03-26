@@ -15,6 +15,11 @@ import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> FetchSearch(String search) async {
+  if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+    throw Error();
+  else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+    throw Error();
+
   final response = await http.get(
       '${PlayerPrefs.radarrURL}/api/v3/movie/lookup?term=$search',
       headers: {
@@ -34,7 +39,7 @@ Future<List<Movie>> FetchSearch(String search) async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load Movie');
+    throw Error();
   }
 }
 
@@ -109,6 +114,9 @@ class Search extends StatelessWidget {
           textStyle: TextStyle(
             color: Colors.white
           ),
+          onError: (Error error) {
+            return Text('Failed to load movies, check your radarr settings.');
+          },
           emptyWidget: Text('No result found'),
           minimumChars: 0,
           onSearch: FetchSearch,

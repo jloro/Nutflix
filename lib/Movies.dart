@@ -15,9 +15,9 @@ import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
-  if (PlayerPrefs.radarrURL == null)
+  if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
     throw Exception('No radarr URL specified, go to settings to specified it.');
-  else if (PlayerPrefs.radarrApiKey == null)
+  else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
     throw Exception('No radarr api key specified, go to settings to specified it.');
 
   var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
@@ -48,7 +48,7 @@ Future<List<Movie>> fetchMovies() async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load Movie');
+    throw Exception('Failed to load Movies, check radarr settings.');
   }
 }
 
