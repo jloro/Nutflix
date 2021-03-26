@@ -78,7 +78,7 @@ class _SettingsState extends State<Settings> {
                 onTap: () => launch('https://www.themoviedb.org/')
             )),
         TextSpan(
-          text: ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.",
+          text: ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.\n\nThis app doesn't allow nor promote illegal download of copyrighted content, only use it for movies for which you have rights according to your country's legislation.\n\nWe don't store any content, metadata or user information. This app is only an interface for third-parties services.",
         ),
 
           ],
