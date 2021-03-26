@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nutflix/AppBar.dart';
-import 'package:nutflix/Drawer.dart';
+import 'package:Nutarr/AppBar.dart';
+import 'package:Nutarr/Drawer.dart';
 import 'package:intl/intl.dart';
-import 'package:nutflix/PlayerPrefs.dart';
+import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'Movie.dart';
 import 'dart:developer' as developer;

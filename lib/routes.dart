@@ -1,8 +1,8 @@
-import 'package:nutflix/AddMovie.dart';
-import 'package:nutflix/Downloads.dart';
-import 'package:nutflix/InfoMovie.dart';
-import 'package:nutflix/Search.dart';
-import 'package:nutflix/SettingsPage.dart';
+import 'package:Nutarr/AddMovie.dart';
+import 'package:Nutarr/Downloads.dart';
+import 'package:Nutarr/InfoMovie.dart';
+import 'package:Nutarr/Search.dart';
+import 'package:Nutarr/SettingsPage.dart';
 
 import 'Movies.dart';
 

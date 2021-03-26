@@ -5,11 +5,11 @@ import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:nutflix/AppBar.dart';
-import 'package:nutflix/BottomNavigationBar.dart';
-import 'package:nutflix/Drawer.dart';
-import 'package:nutflix/PlayerPrefs.dart';
-import 'package:nutflix/routes.dart';
+import 'package:Nutarr/AppBar.dart';
+import 'package:Nutarr/BottomNavigationBar.dart';
+import 'package:Nutarr/Drawer.dart';
+import 'package:Nutarr/PlayerPrefs.dart';
+import 'package:Nutarr/routes.dart';
 import 'dart:developer' as developer;
 
 import 'Movie.dart';

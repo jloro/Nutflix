@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:nutflix/AddMovie.dart';
-import 'package:nutflix/BottomNavigationBar.dart';
-import 'package:nutflix/InfoMovie.dart';
-import 'package:nutflix/routes.dart';
+import 'package:Nutarr/AddMovie.dart';
+import 'package:Nutarr/BottomNavigationBar.dart';
+import 'package:Nutarr/InfoMovie.dart';
+import 'package:Nutarr/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         Routes.settings: (context) => Settings(),
         Routes.downloading: (context) => Downloads()
       },
-      title: 'Nutflix',
+      title: 'Nutarr',
       theme: ThemeData(
         // This is the theme of your application.
         //

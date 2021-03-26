@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:nutflix/PlayerPrefs.dart';
+import 'package:Nutarr/PlayerPrefs.dart';
 import 'dart:developer' as developer;
 
 enum Status {

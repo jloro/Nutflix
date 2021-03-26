@@ -4,7 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nutflix/PlayerPrefs.dart';
+import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;

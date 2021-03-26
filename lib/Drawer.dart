@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nutflix/routes.dart';
+import 'package:Nutarr/routes.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
 
