@@ -64,7 +64,7 @@ class CustomListItem extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: SizedBox(
-                        height: 200,
+                        width: 100,
                         child:
                             Image.network(movie.GetPoster(), fit: BoxFit.fill)),
                   ),

@@ -15,6 +15,11 @@ import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
+  if (PlayerPrefs.radarrURL == null)
+    throw Exception('No radarr URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.radarrApiKey == null)
+    throw Exception('No radarr api key specified, go to settings to specified it.');
+
   var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
         HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
