@@ -151,12 +151,11 @@ class _MoviesState extends State<Movies> {
           future : _fetchMovies,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              developer.log((MediaQuery.of(context).size.width / MediaQuery.of(context).size.height).toString());
               return  GridView.builder(
                   itemCount: snapshot.data.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
                       childAspectRatio: 2 / 3,
-                      crossAxisCount: 3
+                      crossAxisCount: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height > 1 ? 5 : 3
                   ),
                   itemBuilder: (context, i) {
                     Movie movie = snapshot.data[i];
