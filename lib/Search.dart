@@ -118,7 +118,7 @@ class Search extends StatelessWidget {
             return Text('Failed to load movies, check your radarr settings.');
           },
           emptyWidget: Text('No result found'),
-          minimumChars: 0,
+          minimumChars: 1,
           onSearch: FetchSearch,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
