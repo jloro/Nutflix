@@ -122,7 +122,7 @@ class _DownloadsState extends State<Downloads> {
                         dynamic movie = snapshot.data[i];
                         RegExp exp = RegExp(r"^((?:(?: ?.* )+)(?:\ ?\d+ ))(?: ?.* )*\d*p");
                         Iterable<RegExpMatch> matches = exp.allMatches(movie['filename'].toString().replaceAll('.', ' ').replaceAll(RegExp(' +'), ' '));
-                        String movieName = matches.first.groupCount > 0 ? matches.first.group(1) : matches.first[0];
+                        String movieName = matches.length > 0 && matches.first.groupCount > 0 ? matches.first.group(1) : movie['filename'];
                         // developer.log();
                         return Container(
                             padding: EdgeInsets.symmetric(
