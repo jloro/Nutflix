@@ -17,6 +17,7 @@ class MyBottomNavigationBar extends StatefulWidget {
 
 class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _downloads = 0;
+
   void updateDownloads(int val) {
     setState(() {
       _downloads = val;
@@ -25,7 +26,17 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
+    return Container(
+        decoration: BoxDecoration(
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+      //backgroundColor: Colors.white38,
       type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -40,28 +51,30 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           icon: Stack(
             children: <Widget>[
               Icon(Icons.get_app),
-              _downloads == 0 ? UnconstrainedBox() : Positioned(
-                right: 0,
-                child: Container(
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  constraints: BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: Text(
-                    '$_downloads',
-                    style: new TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+              _downloads == 0
+                  ? UnconstrainedBox()
+                  : Positioned(
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                        child: Text(
+                          '$_downloads',
+                          style: new TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
             ],
           ),
           label: 'Downloads',
@@ -74,6 +87,6 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       currentIndex: this.widget.currentIndex,
       selectedItemColor: Colors.amber[800],
       onTap: this.widget.onSelectTab,
-    );
+    ));
   }
 }

@@ -24,7 +24,43 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   String defaultProfile;
+  String currLang;
   List<DropdownMenuItem<String>> items;
+  List<DropdownMenuItem<String>> lang = <String>["English",
+    "French",
+    "Spanish",
+    "German",
+    "Italian",
+    "Danish",
+    "Dutch",
+    "Japanese",
+    "Icelandic",
+    "Chinese",
+    "Russian",
+    "Polish",
+    "Vietnamese",
+    "Swedish",
+    "Norwegian",
+    "Finnish",
+    "Turkish",
+    "Portuguese",
+    "Flemish",
+    "Greek",
+    "Korean",
+    "Hungarian",
+    "Hebrew",
+    "Lithuanian",
+    "Czech",
+    "Hindi",
+    "Romanian",
+    "Thai",
+    "Bulgarian",
+  ].map<DropdownMenuItem<String>>((String value) {
+    return DropdownMenuItem<String>(
+      value: value,
+      child: Text(value),
+    );
+  }).toList();
 
   String uhdProfile;
   List<DropdownMenuItem<String>> itemsUhd;
@@ -66,6 +102,7 @@ class _SettingsState extends State<Settings> {
       },
     );
   }
+
   showAlertDialogAbout(BuildContext context) {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
@@ -74,17 +111,20 @@ class _SettingsState extends State<Settings> {
         text: TextSpan(
           children: [
             TextSpan(
-              text: "This app is intended for personal and non commercial use only.\nAll movies metadata and poster are from TMDB (",
+              text:
+                  "This app is intended for personal and non commercial use only.\nAll movies metadata and poster are from TMDB (",
             ),
             WidgetSpan(
-              child: InkWell(
-                child: new Text(' https://www.themoviedb.org/ ', style: TextStyle(fontSize: 14, color: Colors.blue),),
-                onTap: () => launch('https://www.themoviedb.org/')
-            )),
-        TextSpan(
-          text: ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.\n\nThis app doesn't allow nor promote illegal download of copyrighted content, only use it for movies for which you have rights according to your country's legislation.\n\nWe don't store any content, metadata or user information. This app is only an interface for third-parties services.",
-        ),
-
+                child: InkWell(
+                    child: new Text(
+                      ' https://www.themoviedb.org/ ',
+                      style: TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                    onTap: () => launch('https://www.themoviedb.org/'))),
+            TextSpan(
+              text:
+                  ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.\n\nThis app doesn't allow nor promote illegal download of copyrighted content, only use it for movies for which you have rights according to your country's legislation.\n\nWe don't store any content, metadata or user information. This app is only an interface for third-parties services.",
+            ),
           ],
         ),
       ),
@@ -116,6 +156,9 @@ class _SettingsState extends State<Settings> {
       prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
       prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
       prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+
+      currLang = "English";
+      _updateLang();
     });
   }
 
@@ -182,10 +225,9 @@ class _SettingsState extends State<Settings> {
       PlayerPrefs.uhdProfile = (prefs.getInt(PlayerPrefs.uhdProfileKey) ?? 5);
       PlayerPrefs.folderNamingFormat =
           (prefs.getString(PlayerPrefs.folderNamingFormatKey) ?? null);
-      PlayerPrefs.sabURL =
-        (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
+      PlayerPrefs.sabURL = (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
       PlayerPrefs.sabApiKey =
-        (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
+          (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
     });
   }
 
@@ -198,8 +240,10 @@ class _SettingsState extends State<Settings> {
       // If the server did return a 200 OK response,
       // then parse the JSON.
       Map<String, dynamic> map = json.decode(response.body);
-      if (PlayerPrefs.folderNamingFormat == null || PlayerPrefs.folderNamingFormat != map['movieFolderFormat'])
+      if (PlayerPrefs.folderNamingFormat == null ||
+          PlayerPrefs.folderNamingFormat != map['movieFolderFormat'])
         PlayerPrefs.folderNamingFormat = map['movieFolderFormat'];
+      await _fetchLanguage();
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -207,11 +251,45 @@ class _SettingsState extends State<Settings> {
     }
   }
 
+  _fetchLanguage() async {
+    var response = await http.get(
+        '${PlayerPrefs.radarrURL}/api/v3/config/ui',
+        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      Map<String, dynamic> map = json.decode(response.body);
+      setState(() {
+        currLang = lang[map['movieInfoLanguage'] - 1].value;
+      });
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('fetch language failed');
+    }
+  }
+
+  _updateLang() async {
+    var response = await http.put(
+        '${PlayerPrefs.radarrURL}/api/v3/config/ui',
+        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey}, body: json.encode({"movieInfoLanguage": lang.indexWhere((element) => element.value == currLang) + 1, "id": 1}));
+
+    if (response.statusCode == 202) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('put language failed');
+    }
+  }
+
+
   _fetchQualityProfiles() async {
-    if (prefs == null)
-      await _loadPrefs();
-    defaultProfile = null;
-    uhdProfile = null;
+    if (prefs == null) await _loadPrefs();
+    //defaultProfile = null;
+    //uhdProfile = null;
     var response = await http.get(
         '${PlayerPrefs.radarrURL}/api/v3/qualityprofile',
         headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
@@ -229,7 +307,6 @@ class _SettingsState extends State<Settings> {
           .where((element) => element["id"] == PlayerPrefs.uhdProfile)
           .toList()[0]["name"];
 
-      developer.log(uhdProfile);
       List<String> profiles = <String>[];
       for (dynamic profile in list) profiles.add(profile["name"]);
       items = profiles.map<DropdownMenuItem<String>>((String value) {
@@ -238,6 +315,7 @@ class _SettingsState extends State<Settings> {
           child: Text(value),
         );
       }).toList();
+      setState(() {});
       await _fetchNamingFormat();
     } else {
       // If the server did not return a 200 OK response,
@@ -269,249 +347,306 @@ class _SettingsState extends State<Settings> {
                 child: Align(
                     alignment: Alignment.centerRight,
                     child: IconButton(
-                      icon: Icon(Icons.delete_forever),
-                      onPressed: (){
-                        showAlertDialogConfirm(context);
-                      },
-                    ))),
-            Expanded(
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
                       icon: Icon(Icons.check),
-                      onPressed: (){
+                      onPressed: () {
                         setState(() {
+                          final scaffold = ScaffoldMessenger.of(context);
+                          scaffold.showSnackBar(
+                            SnackBar(
+                              duration: Duration(milliseconds: 500),
+                              content: const Text('Settings changed'),
+                          ));
                           this.widget.reload();
                           _fetchQualityProfiles();
                         });
                       },
                     )))
-
           ],
         ),
       )),
       body: SingleChildScrollView(
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-          child: Column(children: <Widget>[
-            Container(
-                padding: EdgeInsets.only(bottom: 30),
-                child: Column(children: <Widget>[
+          child: Container(
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              child: Column(children: <Widget>[
+                Container(
+                    padding: EdgeInsets.only(bottom: 30),
+                    child: Column(children: <Widget>[
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Stats',
+                            style: TextStyle(fontSize: 30),
+                          )),
+                      Align(
+                          alignment: Alignment.centerRight,
+                          child: SwitchListTile(
+                            title: Text('Stats for nerds'),
+                            value: PlayerPrefs.statsForNerds,
+                            onChanged: _changeStatForNerds,
+                          ))
+                    ])),
+                Container(
+                    child: Column(children: <Widget>[
                   Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Stats',
+                        'Radarr settings',
                         style: TextStyle(fontSize: 30),
                       )),
-                  Align(
-                      alignment: Alignment.centerRight,
-                      child: SwitchListTile(
-                        title: Text('Stats for nerds'),
-                        value: PlayerPrefs.statsForNerds,
-                        onChanged: _changeStatForNerds,
-                      ))
-                ])),
-            Container(
-                child: Column(children: <Widget>[
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Radarr settings',
-                    style: TextStyle(fontSize: 30),
-                  )),
-              Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: MyTextField(
-                      onChanged: _changeRadarrApiKey,
-                      autocorrect: false,
-                      decoration: InputDecoration(
-                          labelText: 'Api key',
-                          border: OutlineInputBorder(),
-                          hintText: 'Api key'),
-                      text: PlayerPrefs.radarrApiKey)),
-              Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: MyTextField(
-                      onChanged: _changeRadarrURL,
-                      autocorrect: false,
-                      decoration: InputDecoration(
-                          labelText: 'Radarr URL',
-                          border: OutlineInputBorder(),
-                          hintText: 'Radarr URL'),
-                      text: PlayerPrefs.radarrURL)),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Stack(children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Default profile',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: defaultProfile != null
-                              ? DropdownButton<String>(
-                                  value: defaultProfile,
-                                  icon: Icon(Icons.arrow_downward),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20),
-                                  underline: Container(
-                                    height: 2,
-                                    color: Colors.red,
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      defaultProfile = newValue;
-                                      _changeDefaultProfile(profiles
-                                          .where((element) =>
-                                              element["name"] == newValue)
-                                          .toList()[0]["id"]);
-                                    });
-                                  },
-                                  items: items,
-                                )
-                              : CircularProgressIndicator())
-                    ])),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Stack(children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Ultra HD profile',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: uhdProfile != null
-                              ? DropdownButton<String>(
-                                  value: uhdProfile,
-                                  icon: Icon(Icons.arrow_downward),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20),
-                                  underline: Container(
-                                    height: 2,
-                                    color: Colors.red,
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      uhdProfile = newValue;
-                                      _changeUhdProfile(profiles
-                                          .where((element) =>
-                                              element["name"] == newValue)
-                                          .toList()[0]["id"]);
-                                    });
-                                  },
-                                  items: items,
-                                )
-                              : CircularProgressIndicator())
-                    ])),
-              ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: MyTextField(
+                          onChanged: _changeRadarrApiKey,
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                              labelText: 'Api key',
+                              border: OutlineInputBorder(),
+                              hintText: 'Api key'),
+                          text: PlayerPrefs.radarrApiKey)),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: MyTextField(
+                          onChanged: _changeRadarrURL,
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                              labelText: 'Radarr URL',
+                              border: OutlineInputBorder(),
+                              hintText: 'Radarr URL'),
+                          text: PlayerPrefs.radarrURL)),
                   Padding(
                     padding: EdgeInsets.only(top: 20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Flexible(
-                            child: Container(
-                              child: Align(
-                                child: Text('Folder naming',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                                alignment: Alignment.centerLeft,
-                              )
-                            )
-                        ),
-                        Flexible(
-                            child: Container(
-                              padding: EdgeInsets.only(top: 10),
+                    child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Stack(children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Default profile',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          ),
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: defaultProfile != null
+                                  ? DropdownButton<String>(
+                                      value: defaultProfile,
+                                      icon: Icon(Icons.arrow_downward),
+                                      iconSize: 24,
+                                      elevation: 16,
+                                      style: TextStyle(fontSize: 20),
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.red,
+                                      ),
+                                      onChanged: (String newValue) {
+                                        setState(() {
+                                          defaultProfile = newValue;
+                                          _changeDefaultProfile(profiles
+                                              .where((element) =>
+                                                  element["name"] == newValue)
+                                              .toList()[0]["id"]);
+                                        });
+                                      },
+                                      items: items,
+                                    )
+                                  : CircularProgressIndicator())
+                        ])),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Stack(children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Ultra HD profile',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          ),
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: uhdProfile != null
+                                  ? DropdownButton<String>(
+                                      value: uhdProfile,
+                                      icon: Icon(Icons.arrow_downward),
+                                      iconSize: 24,
+                                      elevation: 16,
+                                      style: TextStyle(fontSize: 20),
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.red,
+                                      ),
+                                      onChanged: (String newValue) {
+                                        setState(() {
+                                          uhdProfile = newValue;
+                                          _changeUhdProfile(profiles
+                                              .where((element) =>
+                                                  element["name"] == newValue)
+                                              .toList()[0]["id"]);
+                                        });
+                                      },
+                                      items: items,
+                                    )
+                                  : CircularProgressIndicator())
+                        ])),
+                  ),
+                  Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Stack(children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(top: 10),
                                 child: Align(
-                                  child: Text(PlayerPrefs.folderNamingFormat ?? "",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w100
-                                    ),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Movie info language',
+                                    style: TextStyle(fontSize: 20),
                                   ),
-                                  alignment: Alignment.center,
-                                )
-                            )
-                        )
-                      ],
-                    )
-                  )
-            ])),
-            Padding(
-              padding: EdgeInsets.only(top: 40),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Sabnzbd settings',
-                    style: TextStyle(fontSize: 30),
-                  )
-                )),
-            Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: MyTextField(
-                    onChanged: _changeSabApiKey,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                        labelText: 'Api key',
-                        border: OutlineInputBorder(),
-                        hintText: 'Api key'),
-                    text: PlayerPrefs.sabApiKey)),
-            Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: MyTextField(
-                    onChanged: _changeSabURL,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                        labelText: 'Sabnzbd URL',
-                        border: OutlineInputBorder(),
-                        hintText: 'Sabnzbd URL'),
-                    text: PlayerPrefs.sabURL)),
-            Padding(
-              padding: EdgeInsets.only(top: 40),
-              child: TextButton(
-                onPressed: ()
-                {
-                  showAlertDialogAbout(context);
-                },
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        style: TextStyle(
-                            fontSize: 18
-                        ),
-                        text: "about ",
+                                ),
+                              ),
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: currLang != null
+                                      ? DropdownButton<String>(
+                                    value: currLang,
+                                    icon: Icon(Icons.arrow_downward),
+                                    iconSize: 24,
+                                    elevation: 16,
+                                    style: TextStyle(fontSize: 20),
+                                    underline: Container(
+                                      height: 2,
+                                      color: Colors.red,
+                                    ),
+                                    onChanged: (String newValue) {
+                                      setState(() {
+                                        currLang = newValue;
+                                        _updateLang();
+                                      });
+                                    },
+                                    items: lang,
+                                  )
+                                      : CircularProgressIndicator())
+                            ])),
                       ),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: Icon(Icons.info, color: Colors.white),
-                      )
-                    ],
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Flexible(
+                              child: Container(
+                                  child: Align(
+                            child: Text(
+                              'Folder naming',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            alignment: Alignment.centerLeft,
+                          ))),
+                          Flexible(
+                              child: Container(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Align(
+                                    child: Text(
+                                      PlayerPrefs.folderNamingFormat ?? "",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w100),
+                                    ),
+                                    alignment: Alignment.center,
+                                  )))
+                        ],
+                      ))
+                ])),
+                Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Sabnzbd settings',
+                          style: TextStyle(fontSize: 30),
+                        ))),
+                Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: MyTextField(
+                        onChanged: _changeSabApiKey,
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                            labelText: 'Api key',
+                            border: OutlineInputBorder(),
+                            hintText: 'Api key'),
+                        text: PlayerPrefs.sabApiKey)),
+                Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: MyTextField(
+                        onChanged: _changeSabURL,
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                            labelText: 'Sabnzbd URL',
+                            border: OutlineInputBorder(),
+                            hintText: 'Sabnzbd URL'),
+                        text: PlayerPrefs.sabURL)),
+                Padding(
+                  padding: EdgeInsets.only(top: 40, right: 40, left: 40),
+                  child: Container(
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                            child: TextButton(
+                          onPressed: () {
+                            showAlertDialogAbout(context);
+                          },
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  style: TextStyle(fontSize: 18),
+                                  text: "about ",
+                                ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(Icons.info, color: Colors.white),
+                                )
+                              ],
+                            ),
+                          ),
+                        ))),
+                        Expanded(
+                          child:Container(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showAlertDialogConfirm(context);
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      style: TextStyle(fontSize: 18),
+                                      text: "delete ",
+                                    ),
+                                    WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Icon(Icons.delete, color: Colors.white),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )))
+                      ],
+                    ),
                   ),
                 ),
-              )
-            )
-
-          ]))),
+              ]))),
     );
   }
 }
