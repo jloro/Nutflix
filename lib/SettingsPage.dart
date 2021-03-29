@@ -566,6 +566,16 @@ class _SettingsState extends State<Settings> {
                       ))
                 ])),
                 Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: MyTextField(
+                        onChanged: _changeRadarrURL,
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                            labelText: 'Download Path',
+                            border: OutlineInputBorder(),
+                            hintText: 'Download Path'),
+                        text: PlayerPrefs.radarrURL)),
+                Padding(
                     padding: EdgeInsets.only(top: 40),
                     child: Align(
                         alignment: Alignment.centerLeft,

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Nutarr/AppBar.dart';
 import 'package:Nutarr/Drawer.dart';
 import 'package:intl/intl.dart';
 import 'package:Nutarr/PlayerPrefs.dart';
@@ -12,7 +11,7 @@ import 'Movie.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 
-Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
+Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) async {
   var response = await http.post('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
         HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
@@ -40,7 +39,19 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
     // If the server did not return a 200 OK response,
     // then throw an exception.
     developer.log(response.body.toString());
-    throw Exception('Failed to add movie');
+    String msg = "Failed to load movie";
+    if (json.decode(response.body)[0]["errorMessage"] == "Invalid Path")
+      msg = "Invalid Path, check your settings";
+    else
+      msg = json.decode(response.body)[0]["errorMessage"];
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+          duration: Duration(seconds: 1),
+          content: Text(msg),
+          backgroundColor: Colors.red),
+    );
+    return false;
   }
 }
 
@@ -68,6 +79,9 @@ Future<bool> HasMovie(Movie movie) async {
 
 class AddMovie extends StatefulWidget {
   static const String route = '/search/addmovie';
+  final Movie movie;
+
+  AddMovie({@required this.movie});
 
   @override
   _AddMovieState createState() => new _AddMovieState();
@@ -75,28 +89,36 @@ class AddMovie extends StatefulWidget {
 
 class _AddMovieState extends State<AddMovie> {
   bool addIsInactive;
+  Future<bool> _hasmovie;
 
   @override
   void initState() {
     addIsInactive = false;
+    _hasmovie = HasMovie(this.widget.movie);
+  }
+
+  void Function(bool) addOnPressed;
+
+  void _OnTapAdd(bool ultrahd) async {
+    setState(() {
+      addIsInactive = true;
+      addOnPressed = null;
+    });
+    bool ret = await AddRadarrMovie(this.widget.movie, ultrahd, context);
+    if (!ret)
+    {
+      developer.log('error');
+      setState(() {
+        addIsInactive = false;
+        addOnPressed = null;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Movie movie = ModalRoute.of(context).settings.arguments;
-
-    void Function(bool) addOnPressed;
-
-    void _OnTapAdd(bool ultrahd) async {
-        setState(() {
-          addIsInactive = true;
-          addOnPressed = null;
-        });
-        await AddRadarrMovie(movie, ultrahd);
-    }
-
     return Scaffold(
-        appBar: CustomAppBar(),
+        appBar: AppBar(title: Text('Add')),
         body: Column(children: <Widget>[
           Expanded(
               child: Container(
@@ -107,7 +129,7 @@ class _AddMovieState extends State<AddMovie> {
                           padding: EdgeInsets.only(bottom: 20, left: 5),
                           child: Stack(
                             children: <Widget>[
-                              Text(movie.GetTitle(),
+                              Text(this.widget.movie.GetTitle(),
                                   style: TextStyle(
                                       fontSize: 20,
                                       foreground: Paint()
@@ -115,7 +137,7 @@ class _AddMovieState extends State<AddMovie> {
                                         ..strokeWidth = 3
                                         ..color = Colors.black)),
                               Text(
-                                movie.GetTitle(),
+                                this.widget.movie.GetTitle(),
                                 style: TextStyle(
                                     fontSize: 20, color: Colors.white),
                               )
@@ -123,7 +145,7 @@ class _AddMovieState extends State<AddMovie> {
                           ))),
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage(movie.GetFanart()),
+                          image: NetworkImage(this.widget.movie.GetFanart()),
                           fit: BoxFit.cover)))),
           Expanded(
               child: Container(
@@ -134,7 +156,7 @@ class _AddMovieState extends State<AddMovie> {
                   height: 200,
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                    child: Image.network(movie.GetPoster()),
+                    child: Image.network(this.widget.movie.GetPoster()),
                   ),
                 ),
                 Expanded(
@@ -143,7 +165,7 @@ class _AddMovieState extends State<AddMovie> {
                     children: <Widget>[
                       Text(new DateFormat()
                           .add_yMMMd()
-                          .format(DateTime.parse(movie.GetRelease()))),
+                          .format(DateTime.parse(this.widget.movie.GetRelease()))),
                       Flexible(
                         flex: 2,
                         child: ElevatedButton(
@@ -157,7 +179,7 @@ class _AddMovieState extends State<AddMovie> {
                         child: ElevatedButton(
                           onPressed: () async {
                             final url =
-                                'https://www.imdb.com/title/${movie.GetIMDBId()}';
+                                'https://www.imdb.com/title/${this.widget.movie.GetIMDBId()}';
                             if (await canLaunch(url))
                               await launch(url);
                             else
@@ -173,20 +195,20 @@ class _AddMovieState extends State<AddMovie> {
                 Expanded(
                     flex: 3,
                     child: FutureBuilder<bool>(
-                      future: HasMovie(movie),
+                      future: _hasmovie,
                       builder:
                           (BuildContext context, AsyncSnapshot<bool> snapshot) {
                         if (snapshot.hasData) {
-                          if (!snapshot.data && addOnPressed == null) {
+                          developer.log('${snapshot.data} $addOnPressed');
+                          if (!snapshot.data && addOnPressed == null && !addIsInactive) {
                             addIsInactive = false;
                             addOnPressed = _OnTapAdd;
                           } else {
                             addIsInactive = true;
                           }
-
                           return Column(
                             children: <Widget>[
-                              Text('Rating : ${movie.GetRating()}'),
+                              Text('Rating : ${this.widget.movie.GetRating()}'),
                               Flexible(
                                 flex: 2,
                                 child: ElevatedButton(
@@ -218,7 +240,7 @@ class _AddMovieState extends State<AddMovie> {
           Expanded(
               flex: 3,
               child: Container(
-                child: Text(movie.GetOverview()),
+                child: Text(this.widget.movie.GetOverview()),
               ))
         ]));
   }

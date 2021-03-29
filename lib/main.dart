@@ -26,12 +26,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        Routes.movies: (context) => Movies(),
-        Routes.search: (context) => Search(),
-        Routes.addMovie: (context) => AddMovie(),
-        Routes.infoMovie: (context) => InfoMovie(),
-        Routes.settings: (context) => Settings(),
-        Routes.downloading: (context) => Downloads()
+        Routes.movies: (cxt) => Movies(),
+        Routes.search: (cxt) => Search(),
+        Routes.addMovie: (cxt) => AddMovie(movie: ModalRoute.of(cxt).settings.arguments),
+        Routes.infoMovie: (cxt) => InfoMovie(),
+        Routes.settings: (cxt) => Settings(),
+        Routes.downloading: (cxt) => Downloads()
       },
       title: 'Nutarr',
       theme: ThemeData(

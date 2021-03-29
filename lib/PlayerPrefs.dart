@@ -23,4 +23,8 @@ class PlayerPrefs
 
   static const String sabURLKey = "sabURL";
   static String sabURL;
+
+  static const String dlPathKey = "dlPath";
+  static String dlPath;
+
 }

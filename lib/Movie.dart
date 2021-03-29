@@ -89,7 +89,7 @@ class Movie {
     path = path.replaceFirst('{Movie Title}', GetTitle());
     path = path.replaceFirst('{Release Year}', GetYear());
     path = path.replaceFirst('{Quality Title}', ultrahd ? "UHD" : "Default");
-    toSend['path'] = '~/Videos/$path';
+    toSend['path'] = '${PlayerPrefs.dlPath}/$path';
     toSend['monitored'] = true;
     return json.encode(toSend);
   }

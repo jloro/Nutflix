@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:Nutarr/AppBar.dart';
 import 'package:Nutarr/Drawer.dart';
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
