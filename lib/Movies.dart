@@ -16,9 +16,9 @@ import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
   if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
-    throw Exception('No radarr URL specified, go to settings to specified it.');
+    return Future.error('No radarr URL specified, go to settings to specified it.');
   else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
-    throw Exception('No radarr api key specified, go to settings to specified it.');
+    return Future.error('No radarr api key specified, go to settings to specified it.');
 
   var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
       headers: {
@@ -54,6 +54,11 @@ Future<List<Movie>> fetchMovies() async {
 
 Future<String> GetDiskSizeLeft() async
 {
+  if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+    return Future.error('No radarr URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+    return Future.error('No radarr api key specified, go to settings to specified it.');
+
   var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/diskspace',
       headers: {
         HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey

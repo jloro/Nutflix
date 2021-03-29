@@ -14,6 +14,10 @@ class Settings extends StatefulWidget {
   static const String route = '/settings';
   static const int index = 3;
 
+  final void Function() reload;
+
+  Settings({Key key, @required this.reload}) : super(key: key);
+
   @override
   _SettingsState createState() => _SettingsState();
 }
@@ -204,7 +208,10 @@ class _SettingsState extends State<Settings> {
   }
 
   _fetchQualityProfiles() async {
-    await _loadPrefs();
+    if (prefs == null)
+      await _loadPrefs();
+    defaultProfile = null;
+    uhdProfile = null;
     var response = await http.get(
         '${PlayerPrefs.radarrURL}/api/v3/qualityprofile',
         headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
@@ -222,6 +229,7 @@ class _SettingsState extends State<Settings> {
           .where((element) => element["id"] == PlayerPrefs.uhdProfile)
           .toList()[0]["name"];
 
+      developer.log(uhdProfile);
       List<String> profiles = <String>[];
       for (dynamic profile in list) profiles.add(profile["name"]);
       items = profiles.map<DropdownMenuItem<String>>((String value) {
@@ -234,7 +242,7 @@ class _SettingsState extends State<Settings> {
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
-      throw Exception('ftech quality profile failed');
+      throw Exception('fetch quality profile failed');
     }
   }
 
@@ -265,7 +273,20 @@ class _SettingsState extends State<Settings> {
                       onPressed: (){
                         showAlertDialogConfirm(context);
                       },
+                    ))),
+            Expanded(
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(Icons.check),
+                      onPressed: (){
+                        setState(() {
+                          this.widget.reload();
+                          _fetchQualityProfiles();
+                        });
+                      },
                     )))
+
           ],
         ),
       )),

@@ -34,12 +34,13 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd) async {
     if (response.statusCode == 201) {
       return true;
     } else {
-      throw Exception('Failed to load Movie');
+      throw Exception('Failed to start movie');
     }
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load Movie');
+    developer.log(response.body.toString());
+    throw Exception('Failed to add movie');
   }
 }
 

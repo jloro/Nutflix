@@ -14,9 +14,9 @@ import 'dart:developer' as developer;
 
 Future<List<dynamic>> FetchDownloads() async {
   if (PlayerPrefs.sabURL == null || PlayerPrefs.sabURL == "")
-    throw Exception('No sabnzbd URL specified, go to settings to specified it.');
+    return Future.error('No sabnzbd URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
-    throw Exception('No sabnzbd api key specified, go to settings to specified it.');
+    return Future.error('No sabnzbd api key specified, go to settings to specified it.');
 
   final response = await http.get(
       '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
@@ -34,6 +34,11 @@ Future<List<dynamic>> FetchDownloads() async {
 }
 
 Future<String> FetchSpeed() async {
+  if (PlayerPrefs.sabURL == null || PlayerPrefs.sabURL == "")
+    return Future.error('No sabnzbd URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
+    return Future.error('No sabnzbd api key specified, go to settings to specified it.');
+
   final response = await http.get(
       '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
 
@@ -54,7 +59,7 @@ class Downloads extends StatefulWidget {
   static const int index = 2;
   final GlobalKey<MyBottomNavigationBarState> barKey;
 
-  Downloads({this.barKey});
+  Downloads({Key key, this.barKey}) : super(key: key);
 
   @override
   _DownloadsState createState() => _DownloadsState();

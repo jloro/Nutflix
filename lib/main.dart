@@ -75,12 +75,25 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   final GlobalKey<MyBottomNavigationBarState> key = GlobalKey();
 
+  UniqueKey keyMovies = UniqueKey();
+  UniqueKey keyDownloads = UniqueKey();
+  UniqueKey keySettings = UniqueKey();
+
   void _selectTab(int index) {
     if (index != _currentIndex) {
       if (_currentIndex == Search.index)
         FocusScope.of(context).unfocus();
       setState(() => _currentIndex = index);
     }
+  }
+
+  void _reload()
+  {
+    setState(() {
+      keyMovies = UniqueKey();
+      //keySettings = UniqueKey();
+      keyDownloads = UniqueKey();
+    });
   }
 
   @override
@@ -97,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Offstage(
               offstage: _currentIndex != Movies.index,
               child: TickerMode(
-                  enabled: _currentIndex == Movies.index, child: Movies())),
+                  enabled: _currentIndex == Movies.index, child: Movies(key: keyMovies))),
           Offstage(
               offstage: _currentIndex != Search.index,
               child: TickerMode(
@@ -105,11 +118,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Offstage(
               offstage: _currentIndex != Settings.index,
               child: TickerMode(
-                  enabled: _currentIndex == Settings.index, child: Settings())),
+                  enabled: _currentIndex == Settings.index, child: Settings(reload: _reload, key:keySettings))),
           Offstage(
               offstage: _currentIndex != Downloads.index,
               child: TickerMode(
-                  enabled: _currentIndex == Downloads.index, child: Downloads(barKey: key,))),
+                  enabled: _currentIndex == Downloads.index, child: Downloads(barKey: key, key:keyDownloads))),
 
         ],
       ),
