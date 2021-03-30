@@ -14,15 +14,22 @@ import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> FetchSearch(String search) async {
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
   if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
     throw Error();
   else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
     throw Error();
+  else if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
 
   final response = await http.get(
-      '${PlayerPrefs.radarrURL}/api/v3/movie/lookup?term=$search',
+      '$url/api/v3/movie/lookup?term=$search',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       });
 
   if (response.statusCode == 200) {
@@ -32,7 +39,7 @@ Future<List<Movie>> FetchSearch(String search) async {
     List<Movie> movies = List<Movie>();
     list.forEach((element) {
       Movie movie = Movie(obj: element);
-      if (movie.GetRelease() != 'N/A') movies.add(movie);
+      if ((movie.GetRelease() != 'N/A' && !PlayerPrefs.demo) || (PlayerPrefs.demo && movie.GetIMDBId() != null && Search.demoImdsIds.contains(movie.GetIMDBId().replaceAll('t', '')))) movies.add(movie);
     });
     return movies;
   } else {
@@ -100,6 +107,8 @@ class Search extends StatelessWidget {
   static const String route = '/search';
   static const int index = 1;
 
+  static List<String> demoImdsIds = ["0029606","0057298","0033891","0045877","0021890","0041098","0028119","0058548","0045094","0020620","0042209","0034012"];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,6 +123,7 @@ class Search extends StatelessWidget {
             color: Colors.white
           ),
           onError: (Error error) {
+            developer.log(error.toString());
             return Text('Failed to load movies, check your radarr settings.');
           },
           emptyWidget: Text('No result found'),

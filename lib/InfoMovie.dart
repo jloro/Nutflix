@@ -11,9 +11,17 @@ import 'Movie.dart';
 import 'PlayerPrefs.dart';
 
 void DeleteMovie(Movie movie) async {
-  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/queue',
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+  if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
+
+  var response = await http.get('$url/api/v3/queue',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       });
 
   if (response.statusCode == 200) {
@@ -23,15 +31,15 @@ void DeleteMovie(Movie movie) async {
       int id = list
           .firstWhere((element) => element['movieId'] == movie.GetId())['id'];
       response = await http.delete(
-          '${PlayerPrefs.radarrURL}/api/v3/queue/$id?removeFromClient=true',
+          '$url/api/v3/queue/$id?removeFromClient=true',
           headers: {
-            HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+            HttpHeaders.authorizationHeader: apiKey
           });
       if (response.statusCode == 200) {
         response = await http.delete(
-            '${PlayerPrefs.radarrURL}/api/v3/movie/${movie.GetId()}?deleteFiles=true',
+            '$url/api/v3/movie/${movie.GetId()}?deleteFiles=true',
             headers: {
-              HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+              HttpHeaders.authorizationHeader: apiKey
             });
         return;
       } else {
@@ -39,9 +47,9 @@ void DeleteMovie(Movie movie) async {
       }
     } else {
       response = await http.delete(
-          '${PlayerPrefs.radarrURL}/api/v3/movie/${movie.GetId()}?deleteFiles=true',
+          '$url/api/v3/movie/${movie.GetId()}?deleteFiles=true',
           headers: {
-            HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+            HttpHeaders.authorizationHeader: apiKey
           });
       developer.log(response.body);
     }

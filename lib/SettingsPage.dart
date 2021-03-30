@@ -25,8 +25,14 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   String defaultProfile;
   String currLang;
+  String currRootFolder;
+
+  Map<String, dynamic> mapLang;
+
   List<DropdownMenuItem<String>> items;
-  List<DropdownMenuItem<String>> lang = <String>["English",
+  List<DropdownMenuItem<String>> itemsRootFolder;
+  List<DropdownMenuItem<String>> lang = <String>[
+    "English",
     "French",
     "Spanish",
     "German",
@@ -67,6 +73,8 @@ class _SettingsState extends State<Settings> {
 
   SharedPreferences prefs;
   List<dynamic> profiles;
+
+  Widget iconAdvanced = Icon(Icons.add_box);
 
   showAlertDialogConfirm(BuildContext context) {
     // set up the buttons
@@ -148,6 +156,7 @@ class _SettingsState extends State<Settings> {
       PlayerPrefs.uhdProfile = 5;
       PlayerPrefs.sabURL = null;
       PlayerPrefs.sabApiKey = null;
+      PlayerPrefs.showAdvancedSettings = false;
 
       prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
       prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
@@ -156,8 +165,10 @@ class _SettingsState extends State<Settings> {
       prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
       prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
       prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+      prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
 
       currLang = "English";
+      iconAdvanced = Icon(Icons.add_box);
       _updateLang();
     });
   }
@@ -228,13 +239,30 @@ class _SettingsState extends State<Settings> {
       PlayerPrefs.sabURL = (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
       PlayerPrefs.sabApiKey =
           (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
+      PlayerPrefs.dlPath =
+        (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
+      PlayerPrefs.showAdvancedSettings =
+        (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
+
+      iconAdvanced = PlayerPrefs.showAdvancedSettings ? Icon(Icons.indeterminate_check_box) : Icon(Icons.add_box);
+
+      if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
+        PlayerPrefs.demo = true;
     });
   }
 
   _fetchNamingFormat() async {
+    String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.demo)
+    {
+      apiKey = "aaaedca659fa4206bc50153292ba6da2";
+      url = "https://nutflix.fr/radarr";
+    }
+
     var response = await http.get(
-        '${PlayerPrefs.radarrURL}/api/v3/config/naming',
-        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
+        '$url/api/v3/config/naming',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -252,17 +280,25 @@ class _SettingsState extends State<Settings> {
   }
 
   _fetchLanguage() async {
-    var response = await http.get(
-        '${PlayerPrefs.radarrURL}/api/v3/config/ui',
-        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
+    String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.demo)
+    {
+      apiKey = "aaaedca659fa4206bc50153292ba6da2";
+      url = "https://nutflix.fr/radarr";
+    }
+
+    var response = await http.get('$url/api/v3/config/ui',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
-      Map<String, dynamic> map = json.decode(response.body);
+      mapLang = json.decode(response.body);
       setState(() {
-        currLang = lang[map['movieInfoLanguage'] - 1].value;
+        currLang = lang[mapLang['movieInfoLanguage'] - 1].value;
       });
+      await _fetchRootFolder();
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -271,9 +307,19 @@ class _SettingsState extends State<Settings> {
   }
 
   _updateLang() async {
-    var response = await http.put(
-        '${PlayerPrefs.radarrURL}/api/v3/config/ui',
-        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey}, body: json.encode({"movieInfoLanguage": lang.indexWhere((element) => element.value == currLang) + 1, "id": 1}));
+    String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.demo)
+    {
+      apiKey = "aaaedca659fa4206bc50153292ba6da2";
+      url = "https://nutflix.fr/radarr";
+    }
+
+    mapLang["movieInfoLanguage"] =
+        lang.indexWhere((element) => element.value == currLang) + 1;
+    var response = await http.put('$url/api/v3/config/ui',
+        headers: {HttpHeaders.authorizationHeader: apiKey},
+        body: json.encode(mapLang));
 
     if (response.statusCode == 202) {
       // If the server did return a 200 OK response,
@@ -285,14 +331,61 @@ class _SettingsState extends State<Settings> {
     }
   }
 
+  _fetchRootFolder() async {
+    //defaultProfile = null;
+    //uhdProfile = null;
+    String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.demo)
+    {
+      apiKey = "aaaedca659fa4206bc50153292ba6da2";
+      url = "https://nutflix.fr/radarr";
+    }
+
+    var response = await http.get('$url/api/v3/rootfolder',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List<dynamic> list = json.decode(response.body);
+      List<String> rootFoldersString = <String>[];
+      for (dynamic folder in list)
+      {
+        if (folder["accessible"])
+          rootFoldersString.add(folder["path"]);
+      }
+      itemsRootFolder =
+          rootFoldersString.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value, overflow: TextOverflow.ellipsis),
+        );
+      }).toList();
+
+      if (PlayerPrefs.dlPath == null || PlayerPrefs.dlPath == "")
+        PlayerPrefs.dlPath = rootFoldersString[0];
+      currRootFolder = PlayerPrefs.dlPath;
+      setState(() {});
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('fetch quality profile failed');
+    }
+  }
 
   _fetchQualityProfiles() async {
     if (prefs == null) await _loadPrefs();
-    //defaultProfile = null;
-    //uhdProfile = null;
+    String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.demo)
+    {
+      apiKey = "aaaedca659fa4206bc50153292ba6da2";
+      url = "https://nutflix.fr/radarr";
+    }
     var response = await http.get(
-        '${PlayerPrefs.radarrURL}/api/v3/qualityprofile',
-        headers: {HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey});
+        '$url/api/v3/qualityprofile',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -312,7 +405,7 @@ class _SettingsState extends State<Settings> {
       items = profiles.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value),
+          child: Text(value, overflow: TextOverflow.ellipsis),
         );
       }).toList();
       setState(() {});
@@ -333,6 +426,22 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.check),
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          setState(() {
+            final scaffold = ScaffoldMessenger.of(context);
+            scaffold.showSnackBar(SnackBar(
+              duration: Duration(milliseconds: 500),
+              content: const Text('Settings changed'),
+            ));
+            this.widget.reload();
+            _fetchQualityProfiles();
+          });
+        },
+      ),
       appBar: AppBar(
           title: Container(
         child: Row(
@@ -347,17 +456,15 @@ class _SettingsState extends State<Settings> {
                 child: Align(
                     alignment: Alignment.centerRight,
                     child: IconButton(
-                      icon: Icon(Icons.check),
+                      icon: iconAdvanced,
                       onPressed: () {
                         setState(() {
-                          final scaffold = ScaffoldMessenger.of(context);
-                          scaffold.showSnackBar(
-                            SnackBar(
-                              duration: Duration(milliseconds: 500),
-                              content: const Text('Settings changed'),
-                          ));
-                          this.widget.reload();
-                          _fetchQualityProfiles();
+                          if (PlayerPrefs.showAdvancedSettings)
+                            iconAdvanced = Icon(Icons.add_box);
+                          else
+                            iconAdvanced = Icon(Icons.indeterminate_check_box);
+                          PlayerPrefs.showAdvancedSettings = !PlayerPrefs.showAdvancedSettings;
+                          prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
                         });
                       },
                     )))
@@ -413,25 +520,28 @@ class _SettingsState extends State<Settings> {
                               border: OutlineInputBorder(),
                               hintText: 'Radarr URL'),
                           text: PlayerPrefs.radarrURL)),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Stack(children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Default profile',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ),
-                          ),
-                          Align(
+                  Container(
+                    child: PlayerPrefs.showAdvancedSettings ? Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Align(
                               alignment: Alignment.centerRight,
-                              child: defaultProfile != null
-                                  ? DropdownButton<String>(
+                              child: Stack(children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Default profile',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: defaultProfile != null
+                                        ? DropdownButton<String>(
                                       value: defaultProfile,
                                       icon: Icon(Icons.arrow_downward),
                                       iconSize: 24,
@@ -446,34 +556,34 @@ class _SettingsState extends State<Settings> {
                                           defaultProfile = newValue;
                                           _changeDefaultProfile(profiles
                                               .where((element) =>
-                                                  element["name"] == newValue)
+                                          element["name"] == newValue)
                                               .toList()[0]["id"]);
                                         });
                                       },
                                       items: items,
                                     )
-                                  : CircularProgressIndicator())
-                        ])),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Stack(children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Ultra HD profile',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ),
-                          ),
-                          Align(
+                                        : CircularProgressIndicator())
+                              ])),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Align(
                               alignment: Alignment.centerRight,
-                              child: uhdProfile != null
-                                  ? DropdownButton<String>(
+                              child: Stack(children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Ultra HD profile',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: uhdProfile != null
+                                        ? DropdownButton<String>(
                                       value: uhdProfile,
                                       icon: Icon(Icons.arrow_downward),
                                       iconSize: 24,
@@ -488,93 +598,93 @@ class _SettingsState extends State<Settings> {
                                           uhdProfile = newValue;
                                           _changeUhdProfile(profiles
                                               .where((element) =>
-                                                  element["name"] == newValue)
+                                          element["name"] == newValue)
                                               .toList()[0]["id"]);
                                         });
                                       },
                                       items: items,
                                     )
-                                  : CircularProgressIndicator())
-                        ])),
-                  ),
-                  Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Stack(children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Movie info language',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                              ),
-                              Align(
-                                  alignment: Alignment.centerRight,
-                                  child: currLang != null
-                                      ? DropdownButton<String>(
-                                    value: currLang,
-                                    icon: Icon(Icons.arrow_downward),
-                                    iconSize: 24,
-                                    elevation: 16,
-                                    style: TextStyle(fontSize: 20),
-                                    underline: Container(
-                                      height: 2,
-                                      color: Colors.red,
-                                    ),
-                                    onChanged: (String newValue) {
-                                      setState(() {
-                                        currLang = newValue;
-                                        _updateLang();
-                                      });
-                                    },
-                                    items: lang,
-                                  )
-                                      : CircularProgressIndicator())
-                            ])),
-                      ),
-                  Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Flexible(
-                              child: Container(
-                                  child: Align(
-                            child: Text(
-                              'Folder naming',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            alignment: Alignment.centerLeft,
-                          ))),
-                          Flexible(
-                              child: Container(
+                                        : CircularProgressIndicator())
+                              ])),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Stack(children: <Widget>[
+                                Padding(
                                   padding: EdgeInsets.only(top: 10),
                                   child: Align(
+                                    alignment: Alignment.centerLeft,
                                     child: Text(
-                                      PlayerPrefs.folderNamingFormat ?? "",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w100),
+                                      'Movie info language',
+                                      style: TextStyle(fontSize: 20),
                                     ),
-                                    alignment: Alignment.center,
-                                  )))
-                        ],
-                      ))
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: currLang != null
+                                        ? DropdownButton<String>(
+                                      value: currLang,
+                                      icon: Icon(Icons.arrow_downward),
+                                      iconSize: 24,
+                                      elevation: 16,
+                                      style: TextStyle(fontSize: 20),
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.red,
+                                      ),
+                                      onChanged: (String newValue) {
+                                        setState(() {
+                                          currLang = newValue;
+                                          _updateLang();
+                                        });
+                                      },
+                                      items: lang,
+                                    )
+                                        : CircularProgressIndicator())
+                              ])),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Root folder',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Align(
+                                alignment: Alignment.centerRight,
+                                child: currRootFolder != null
+                                    ? DropdownButton<String>(
+                                  isExpanded: true,
+                                  value: currRootFolder,
+                                  icon: Icon(Icons.arrow_downward),
+                                  iconSize: 24,
+                                  elevation: 16,
+                                  style: TextStyle(fontSize: 20),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.red,
+                                  ),
+                                  onChanged: (String newValue) {
+                                    setState(() {
+                                      currRootFolder = newValue;
+                                      PlayerPrefs.dlPath = newValue;
+                                    });
+                                  },
+                                  items: itemsRootFolder,
+                                )
+                                    : CircularProgressIndicator())),
+                      ]
+                    ) : Container()
+                  ),
                 ])),
-                Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: MyTextField(
-                        onChanged: _changeRadarrURL,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                            labelText: 'Download Path',
-                            border: OutlineInputBorder(),
-                            hintText: 'Download Path'),
-                        text: PlayerPrefs.radarrURL)),
                 Padding(
                     padding: EdgeInsets.only(top: 40),
                     child: Align(
@@ -609,49 +719,53 @@ class _SettingsState extends State<Settings> {
                     child: Row(
                       children: <Widget>[
                         Expanded(
-                        child: Container(
-                          alignment: Alignment.centerLeft,
-                            child: TextButton(
-                          onPressed: () {
-                            showAlertDialogAbout(context);
-                          },
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  style: TextStyle(fontSize: 18),
-                                  text: "about ",
-                                ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: Icon(Icons.info, color: Colors.white),
-                                )
-                              ],
-                            ),
-                          ),
-                        ))),
-                        Expanded(
-                          child:Container(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                showAlertDialogConfirm(context);
-                              },
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      style: TextStyle(fontSize: 18),
-                                      text: "delete ",
+                            child: Container(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton(
+                                  onPressed: () {
+                                    showAlertDialogAbout(context);
+                                  },
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          style: TextStyle(fontSize: 18),
+                                          text: "about ",
+                                        ),
+                                        WidgetSpan(
+                                          alignment:
+                                              PlaceholderAlignment.middle,
+                                          child: Icon(Icons.info,
+                                              color: Colors.white),
+                                        )
+                                      ],
                                     ),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.middle,
-                                      child: Icon(Icons.delete, color: Colors.white),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )))
+                                  ),
+                                ))),
+                        Expanded(
+                            child: Container(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showAlertDialogConfirm(context);
+                                  },
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          style: TextStyle(fontSize: 18),
+                                          text: "delete ",
+                                        ),
+                                        WidgetSpan(
+                                          alignment:
+                                              PlaceholderAlignment.middle,
+                                          child: Icon(Icons.delete,
+                                              color: Colors.white),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )))
                       ],
                     ),
                   ),

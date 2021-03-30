@@ -12,9 +12,18 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 
 Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) async {
-  var response = await http.post('${PlayerPrefs.radarrURL}/api/v3/movie',
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+  if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
+
+
+  var response = await http.post('$url/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       },
       body: movie.ToJson(ultrahd));
 
@@ -22,9 +31,9 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) asy
     // If the server did return a 200 OK response,
     // then parse the JSON.
     Map<String, dynamic> obj = json.decode(response.body);
-    response = await http.post('${PlayerPrefs.radarrURL}/api/v3/command',
+    response = await http.post('$url/api/v3/command',
         headers: {
-          HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+          HttpHeaders.authorizationHeader: apiKey
         },
         body: json.encode({
           'name': 'MoviesSearch',
@@ -38,7 +47,6 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) asy
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    developer.log(response.body.toString());
     String msg = "Failed to load movie";
     if (json.decode(response.body)[0]["errorMessage"] == "Invalid Path")
       msg = "Invalid Path, check your settings";
@@ -56,9 +64,17 @@ Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) asy
 }
 
 Future<bool> HasMovie(Movie movie) async {
-  final response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+  if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
+
+  final response = await http.get('$url/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       });
 
   if (response.statusCode == 200) {
@@ -199,7 +215,6 @@ class _AddMovieState extends State<AddMovie> {
                       builder:
                           (BuildContext context, AsyncSnapshot<bool> snapshot) {
                         if (snapshot.hasData) {
-                          developer.log('${snapshot.data} $addOnPressed');
                           if (!snapshot.data && addOnPressed == null && !addIsInactive) {
                             addIsInactive = false;
                             addOnPressed = _OnTapAdd;

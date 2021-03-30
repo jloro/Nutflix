@@ -14,23 +14,29 @@ import 'dart:developer' as developer;
 import 'Movie.dart';
 
 Future<List<Movie>> fetchMovies() async {
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
   if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
     return Future.error('No radarr URL specified, go to settings to specified it.');
   else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
     return Future.error('No radarr api key specified, go to settings to specified it.');
+  else if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
 
-  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/movie',
+  var response = await http.get('$url/api/v3/movie',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       });
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     List<dynamic> list = json.decode(response.body);
-    response = await http.get('${PlayerPrefs.radarrURL}/api/v3/queue',
+    response = await http.get('$url/api/v3/queue',
         headers: {
-          HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+          HttpHeaders.authorizationHeader: apiKey
         });
     if (response.statusCode == 200) {
       List<Movie> movies = List<Movie>();
@@ -53,19 +59,30 @@ Future<List<Movie>> fetchMovies() async {
 
 Future<String> GetDiskSizeLeft() async
 {
+  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
   if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
     return Future.error('No radarr URL specified, go to settings to specified it.');
   else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
     return Future.error('No radarr api key specified, go to settings to specified it.');
+  else if (PlayerPrefs.demo)
+  {
+    apiKey = "aaaedca659fa4206bc50153292ba6da2";
+    url = "https://nutflix.fr/radarr";
+  }
 
-  var response = await http.get('${PlayerPrefs.radarrURL}/api/v3/diskspace',
+  var response = await http.get('$url/api/v3/rootfolder',
       headers: {
-        HttpHeaders.authorizationHeader: PlayerPrefs.radarrApiKey
+        HttpHeaders.authorizationHeader: apiKey
       });
 
   if (response.statusCode == 200) {
     List<dynamic> list = json.decode(response.body);
-    int spaceLeft = list[0]['freeSpace'];
+    int spaceLeft;
+    if (PlayerPrefs.dlPath == null || PlayerPrefs.dlPath == "")
+      spaceLeft = list[0]['freeSpace'];
+    else
+      spaceLeft = list[list.indexWhere((element) => element['path'] == PlayerPrefs.dlPath)]['freeSpace'];
     return '${(spaceLeft * 0.000000001).round()} GB left';
     // If the server did return a 200 OK response,
     // then parse the JSON.
@@ -93,13 +110,21 @@ class _MoviesState extends State<Movies> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       PlayerPrefs.statsForNerds =
-      (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
+        (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
       PlayerPrefs.radarrURL =
-      (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
+        (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
       PlayerPrefs.radarrApiKey =
-      (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
+        (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
+      PlayerPrefs.dlPath =
+        (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
+      PlayerPrefs.showAdvancedSettings =
+        (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
+
       _fetchMovies = fetchMovies();
       _getSizeDisk = GetDiskSizeLeft();
+
+      if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
+        PlayerPrefs.demo = true;
     });
   }
 

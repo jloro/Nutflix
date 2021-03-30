@@ -18,6 +18,8 @@ class Movie {
 
   String GetTitle() { return obj['title']; }
 
+  String GetOriginalTitle() { return obj['originalTitle']; }
+
   String GetOverview() {
     if (obj['overview'] != null) return obj['overview'];
     else return 'no overview';
@@ -86,7 +88,7 @@ class Movie {
     Map<String, dynamic> toSend = obj;
     toSend['qualityProfileId'] = ultrahd ? PlayerPrefs.uhdProfile : PlayerPrefs.defaultProfile;
     String path = PlayerPrefs.folderNamingFormat;
-    path = path.replaceFirst('{Movie Title}', GetTitle());
+    path = path.replaceFirst('{Movie Title}', GetOriginalTitle());
     path = path.replaceFirst('{Release Year}', GetYear());
     path = path.replaceFirst('{Quality Title}', ultrahd ? "UHD" : "Default");
     toSend['path'] = '${PlayerPrefs.dlPath}/$path';

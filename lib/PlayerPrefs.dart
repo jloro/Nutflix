@@ -27,4 +27,9 @@ class PlayerPrefs
   static const String dlPathKey = "dlPath";
   static String dlPath;
 
+  static const String showAdvancedSettingsKey = "showAdvancedSettings";
+  static bool showAdvancedSettings = false;
+
+  static bool demo = false;
+  static String demoKey = "demo";
 }

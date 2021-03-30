@@ -13,13 +13,20 @@ import 'PlayerPrefs.dart';
 import 'dart:developer' as developer;
 
 Future<List<dynamic>> FetchDownloads() async {
+  String url = PlayerPrefs.sabURL, apiKey = PlayerPrefs.sabApiKey;
+
   if (PlayerPrefs.sabURL == null || PlayerPrefs.sabURL == "")
     return Future.error('No sabnzbd URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
     return Future.error('No sabnzbd api key specified, go to settings to specified it.');
+  else if (PlayerPrefs.demo)
+  {
+    apiKey = "9756bf7891504405ac9db4f26e0aa3e4";
+    url = "https://nutflix.fr/sabnzbd";
+  }
 
   final response = await http.get(
-      '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
+      '$url/api?mode=queue&apikey=$apiKey&output=json');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -34,13 +41,20 @@ Future<List<dynamic>> FetchDownloads() async {
 }
 
 Future<String> FetchSpeed() async {
+  String url = PlayerPrefs.sabURL, apiKey = PlayerPrefs.sabApiKey;
+
   if (PlayerPrefs.sabURL == null || PlayerPrefs.sabURL == "")
     return Future.error('No sabnzbd URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
     return Future.error('No sabnzbd api key specified, go to settings to specified it.');
+  else if (PlayerPrefs.demo)
+  {
+    apiKey = "9756bf7891504405ac9db4f26e0aa3e4";
+    url = "https://nutflix.fr/sabnzbd";
+  }
 
   final response = await http.get(
-      '${PlayerPrefs.sabURL}/api?mode=queue&apikey=${PlayerPrefs.sabApiKey}&output=json');
+      '$url/api?mode=queue&apikey=$apiKey&output=json');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
