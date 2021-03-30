@@ -38,7 +38,8 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logo.png"
+  image_path_android: "assets/logo android.png"
+  image_path_ios: "assets/logo ios.png"
 
 dev_dependencies:
   flutter_test:
