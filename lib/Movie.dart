@@ -86,6 +86,7 @@ class Movie {
   String ToJson(bool ultrahd)
   {
     Map<String, dynamic> toSend = obj;
+    toSend['id'] = 0;
     toSend['qualityProfileId'] = ultrahd ? PlayerPrefs.uhdProfile : PlayerPrefs.defaultProfile;
     String path = PlayerPrefs.folderNamingFormat;
     path = path.replaceFirst('{Movie Title}', GetOriginalTitle());

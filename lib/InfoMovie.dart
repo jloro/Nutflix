@@ -51,7 +51,6 @@ void DeleteMovie(Movie movie) async {
           headers: {
             HttpHeaders.authorizationHeader: apiKey
           });
-      developer.log(response.body);
     }
   } else {
     throw Exception('Failed to load queue');

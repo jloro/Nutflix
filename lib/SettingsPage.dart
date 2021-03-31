@@ -477,7 +477,7 @@ class _SettingsState extends State<Settings> {
               child: Column(children: <Widget>[
                 Container(
                     padding: EdgeInsets.only(bottom: 30),
-                    child: Column(children: <Widget>[
+                    child: PlayerPrefs.showAdvancedSettings ? Column(children: <Widget>[
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -491,7 +491,7 @@ class _SettingsState extends State<Settings> {
                             value: PlayerPrefs.statsForNerds,
                             onChanged: _changeStatForNerds,
                           ))
-                    ])),
+                    ]) : Container()),
                 Container(
                     child: Column(children: <Widget>[
                   Align(
