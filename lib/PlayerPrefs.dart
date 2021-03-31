@@ -32,4 +32,8 @@ class PlayerPrefs
 
   static bool demo = false;
   static String demoKey = "demo";
+
+  static const String firstLaunchKey = "firstLaunch";
+  static bool firstLaunch = true;
+
 }

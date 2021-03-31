@@ -95,8 +95,9 @@ Future<String> GetDiskSizeLeft() async
 class Movies extends StatefulWidget {
   static const String route = '/movies';
   static const int index = 0;
+  final SharedPreferences prefs;
 
-  Movies({ Key key }) : super(key: key);
+  Movies({ Key key, @required this.prefs }) : super(key: key);
 
   @override
   _MoviesState createState() => _MoviesState();

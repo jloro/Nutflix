@@ -15,18 +15,25 @@ import 'PlayerPrefs.dart';
 import 'Search.dart';
 import 'SettingsPage.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  runApp(MyApp(prefs: prefs));
 }
 
 class MyApp extends StatelessWidget {
+  final SharedPreferences prefs;
+
+  MyApp({ this.prefs });
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        Routes.movies: (cxt) => Movies(),
+        Routes.movies: (cxt) => Movies(prefs: prefs,),
         Routes.search: (cxt) => Search(),
         Routes.addMovie: (cxt) => AddMovie(movie: ModalRoute.of(cxt).settings.arguments),
         Routes.infoMovie: (cxt) => InfoMovie(),
@@ -94,6 +101,26 @@ class _MyHomePageState extends State<MyHomePage> {
       //keySettings = UniqueKey();
       keyDownloads = UniqueKey();
     });
+  }
+
+  // void _loadPref() async
+  // {
+  //   //SharedPreferences prefs = await SharedPreferences.getInstance();
+  //
+  //   setState(() {
+  //     PlayerPrefs.firstLaunch = (this.prefs.getBool(PlayerPrefs.firstLaunchKey) ?? true);
+  //     if (PlayerPrefs.firstLaunch)
+  //       _currentIndex = 3;
+  //     PlayerPrefs.firstLaunch = false;
+  //     prefs.setBool(PlayerPrefs.firstLaunchKey, PlayerPrefs.firstLaunch);
+  //   });
+  //
+  // }
+
+  @override
+  void initState() {
+    super.initState();
+    //_loadPref();
   }
 
   @override

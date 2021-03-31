@@ -25,14 +25,33 @@ Future<List<dynamic>> FetchDownloads() async {
     url = "https://nutflix.fr/sabnzbd";
   }
 
-  final response = await http.get(
+  dynamic response = await http.get(
       '$url/api?mode=queue&apikey=$apiKey&output=json');
 
+  List<dynamic> ret = List<dynamic>();
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     Map<String, dynamic> map = json.decode(response.body);
-    return map['queue']['slots'];
+
+    response = await http.get(
+        '$url/api?mode=history&apikey=$apiKey&output=json');
+
+    ret.add(map['queue']['slots']);
+
+    if (response.statusCode == 200) {
+      map = json.decode(response.body);
+      List<dynamic> toAdd = List<dynamic>();
+      for (dynamic movie in map['history']['slots'])
+      {
+        if (movie['action_line'] != "")
+          toAdd.add(movie);
+      }
+      ret.add(toAdd);
+      return ret;
+    } else {
+      throw Exception('Failed to load Downloads, check your sabnzbd settings.');
+    }
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -133,28 +152,52 @@ class _DownloadsState extends State<Downloads> {
             future: FetchDownloads(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                _length = snapshot.data.length;
-                if (snapshot.data.length > 0)
-                  return ListView.builder(
-                      itemCount: snapshot.data.length,
+                _length = snapshot.data[0].length + snapshot.data[1].length;
+                if (snapshot.data[0].length > 0 || snapshot.data[1].length > 0)
+                  return ListView.separated(
+                    padding: EdgeInsets.only(top: 10),
+                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                      itemCount: snapshot.data[0].length + snapshot.data[1].length,
                       itemBuilder: (context, i) {
-                        dynamic movie = snapshot.data[i];
+                        dynamic movie;
+                        String name;
+                        bool queue;
+                        if (i < snapshot.data[0].length) {
+                          movie = snapshot.data[0][i];
+                          name = movie['filename'];
+                          queue = true;
+                        } else {
+                          movie = snapshot.data[1][i - snapshot.data[0].length];
+                          name = movie['name'];
+                          queue = false;
+                        }
                         RegExp exp = RegExp(r"^((?:(?: ?.* )+)(?:\ ?\d+ ))(?: ?.* )*\d*p");
-                        Iterable<RegExpMatch> matches = exp.allMatches(movie['filename'].toString().replaceAll('.', ' ').replaceAll(RegExp(' +'), ' '));
-                        String movieName = matches.length > 0 && matches.first.groupCount > 0 ? matches.first.group(1) : movie['filename'];
-                        // developer.log();
+                        Iterable<RegExpMatch> matches = exp.allMatches(name.replaceAll('.', ' ').replaceAll(RegExp(' +'), ' '));
+                        String movieName = matches.length > 0 && matches.first.groupCount > 0 ? matches.first.group(1) : name;
                         return Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).bottomAppBarColor,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                spreadRadius: 1,
+                                blurRadius: 7,
+                                offset: Offset(0, 0), // changes position of shadow
+                              ),
+                            ],
+                          ),
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 10),
                             child: Column(children: <Widget>[
                               Padding(
                                   padding: EdgeInsets.only(bottom: 10),
-                                  child: Text(movieName)),
-                              Stack(
+                                  child: Text(movieName, style: TextStyle(fontWeight: FontWeight.bold),)),
+                              queue ? Stack(
                                 children: <Widget>[
                                   Align(
                                       alignment: Alignment.centerRight,
-                                      child: Text('${movie['percentage']}%')),
+                                      child: Text('${movie['percentage']}%', style: TextStyle(fontWeight: FontWeight.bold, color: movie['percentage'] == "0" ? Colors.orange : Colors.blue))),
                                   LinearPercentIndicator(
                                     padding: EdgeInsets.only(left: 20),
                                     width:
@@ -166,8 +209,10 @@ class _DownloadsState extends State<Downloads> {
                                     progressColor: Colors.blue,
                                   )
                                 ],
-                              ),
-                              Stack(
+                              ) : Text(movie['action_line']),
+                              queue ? Padding(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Stack(
                                 children: <Widget>[
                                   Align(
                                     alignment: Alignment.centerLeft,
@@ -178,7 +223,7 @@ class _DownloadsState extends State<Downloads> {
                                       child: Text(
                                           'Time left: ${movie['timeleft']}'))
                                 ],
-                              )
+                              )) : Container()
                             ]));
                       });
                 else

@@ -437,6 +437,11 @@ class _SettingsState extends State<Settings> {
               duration: Duration(milliseconds: 500),
               content: const Text('Settings changed'),
             ));
+            if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
+              PlayerPrefs.demo = true;
+            else
+              PlayerPrefs.demo = false;
+
             this.widget.reload();
             _fetchQualityProfiles();
           });
