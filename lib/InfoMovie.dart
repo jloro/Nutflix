@@ -209,7 +209,7 @@ class _InfoMovieState extends State<InfoMovie> {
                 child: Text(
                   this.widget.movie.GetOverview(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 20, ),
                 ),
               ),
             ),

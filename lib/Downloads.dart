@@ -139,7 +139,7 @@ class _DownloadsState extends State<Downloads> {
                 future: _fetchSpeed,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return Text('${snapshot.data}/s');
+                    return Text('${snapshot.data}bps');
                   } else {
                     return Text('');
                   }
@@ -155,8 +155,8 @@ class _DownloadsState extends State<Downloads> {
                 _length = snapshot.data[0].length + snapshot.data[1].length;
                 if (snapshot.data[0].length > 0 || snapshot.data[1].length > 0)
                   return ListView.separated(
-                    padding: EdgeInsets.only(top: 10),
-                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                    padding: EdgeInsets.only(top: 10, bottom: 10),
+                      separatorBuilder: (BuildContext context, int index) => Container(height: 10,),
                       itemCount: snapshot.data[0].length + snapshot.data[1].length,
                       itemBuilder: (context, i) {
                         dynamic movie;
@@ -192,7 +192,7 @@ class _DownloadsState extends State<Downloads> {
                             child: Column(children: <Widget>[
                               Padding(
                                   padding: EdgeInsets.only(bottom: 10),
-                                  child: Text(movieName, style: TextStyle(fontWeight: FontWeight.bold),)),
+                                  child: Text(movieName, style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center,)),
                               queue ? Stack(
                                 children: <Widget>[
                                   Align(

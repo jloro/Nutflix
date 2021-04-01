@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'Movie.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
+import 'package:Nutarr/routes.dart';
 
 Future<bool> AddRadarrMovie(Movie movie, bool ultrahd, BuildContext context) async {
   String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
@@ -110,7 +111,9 @@ class _AddMovieState extends State<AddMovie> {
   @override
   void initState() {
     addIsInactive = false;
-    _hasmovie = HasMovie(this.widget.movie);
+    setState(() {
+      _hasmovie = HasMovie(this.widget.movie);
+    });
   }
 
   void Function(bool) addOnPressed;
@@ -184,11 +187,9 @@ class _AddMovieState extends State<AddMovie> {
                           .format(DateTime.parse(this.widget.movie.GetRelease()))),
                       Flexible(
                         flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Movies',
-                              style: TextStyle(fontSize: 20)),
-                        ),
+                        child: Container(
+                          height: 20,
+                        )
                       ),
                       Flexible(
                         flex: 2,
@@ -255,6 +256,7 @@ class _AddMovieState extends State<AddMovie> {
           Expanded(
               flex: 3,
               child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
                 child: Text(this.widget.movie.GetOverview()),
               ))
         ]));
