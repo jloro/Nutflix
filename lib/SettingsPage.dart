@@ -14,9 +14,10 @@ class Settings extends StatefulWidget {
   static const String route = '/settings';
   static const int index = 3;
 
+  final SharedPreferences prefs;
   final void Function() reload;
 
-  Settings({Key key, @required this.reload}) : super(key: key);
+  Settings({Key key, @required this.reload, @required this.prefs}) : super(key: key);
 
   @override
   _SettingsState createState() => _SettingsState();
@@ -71,7 +72,6 @@ class _SettingsState extends State<Settings> {
   String uhdProfile;
   List<DropdownMenuItem<String>> itemsUhd;
 
-  SharedPreferences prefs;
   List<dynamic> profiles;
 
   Widget iconAdvanced = Icon(Icons.add_box);
@@ -149,23 +149,7 @@ class _SettingsState extends State<Settings> {
 
   _resetPlayerPrefs() async {
     setState(() {
-      PlayerPrefs.statsForNerds = false;
-      PlayerPrefs.radarrURL = null;
-      PlayerPrefs.radarrApiKey = null;
-      PlayerPrefs.defaultProfile = 1;
-      PlayerPrefs.uhdProfile = 5;
-      PlayerPrefs.sabURL = null;
-      PlayerPrefs.sabApiKey = null;
-      PlayerPrefs.showAdvancedSettings = false;
-
-      prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
-      prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
-      prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
-      prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
-      prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
-      prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
-      prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
-      prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
+      PlayerPrefs.Reset(this.widget.prefs);
 
       currLang = "English";
       iconAdvanced = Icon(Icons.add_box);
@@ -176,78 +160,49 @@ class _SettingsState extends State<Settings> {
   _changeRadarrURL(String url) async {
     setState(() {
       PlayerPrefs.radarrURL = url;
-      prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
+      this.widget.prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
     });
   }
 
   _changeRadarrApiKey(String url) async {
     setState(() {
       PlayerPrefs.radarrApiKey = url;
-      prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
+      this.widget.prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
     });
   }
 
   _changeSabURL(String url) async {
     setState(() {
       PlayerPrefs.sabURL = url;
-      prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
+      this.widget.prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
     });
   }
 
   _changeSabApiKey(String url) async {
     setState(() {
       PlayerPrefs.sabApiKey = url;
-      prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+      this.widget.prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
     });
   }
 
   _changeDefaultProfile(int profile) async {
     setState(() {
       PlayerPrefs.defaultProfile = profile;
-      prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
+      this.widget.prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
     });
   }
 
   _changeUhdProfile(int profile) async {
     setState(() {
       PlayerPrefs.uhdProfile = profile;
-      prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
+      this.widget.prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
     });
   }
 
   _changeStatForNerds(bool value) async {
     setState(() {
       PlayerPrefs.statsForNerds = value;
-      prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
-    });
-  }
-
-  _loadPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    setState(() {
-      PlayerPrefs.statsForNerds =
-          (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
-      PlayerPrefs.radarrURL =
-          (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
-      PlayerPrefs.radarrApiKey =
-          (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
-      PlayerPrefs.defaultProfile =
-          (prefs.getInt(PlayerPrefs.defaultProfileKey) ?? 1);
-      PlayerPrefs.uhdProfile = (prefs.getInt(PlayerPrefs.uhdProfileKey) ?? 5);
-      PlayerPrefs.folderNamingFormat =
-          (prefs.getString(PlayerPrefs.folderNamingFormatKey) ?? null);
-      PlayerPrefs.sabURL = (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
-      PlayerPrefs.sabApiKey =
-          (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
-      PlayerPrefs.dlPath =
-        (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
-      PlayerPrefs.showAdvancedSettings =
-        (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
-
-      iconAdvanced = PlayerPrefs.showAdvancedSettings ? Icon(Icons.indeterminate_check_box) : Icon(Icons.add_box);
-
-      if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
-        PlayerPrefs.demo = true;
+      this.widget.prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
     });
   }
 
@@ -375,7 +330,6 @@ class _SettingsState extends State<Settings> {
   }
 
   _fetchQualityProfiles() async {
-    if (prefs == null) await _loadPrefs();
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
     if (PlayerPrefs.demo)
@@ -420,362 +374,396 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      iconAdvanced = PlayerPrefs.showAdvancedSettings ? Icon(Icons.indeterminate_check_box) : Icon(Icons.add_box);
+    });
     _fetchQualityProfiles();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          setState(() {
-            final scaffold = ScaffoldMessenger.of(context);
-            scaffold.showSnackBar(SnackBar(
-              duration: Duration(milliseconds: 500),
-              content: const Text('Settings changed'),
-            ));
-            if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
-              PlayerPrefs.demo = true;
-            else
-              PlayerPrefs.demo = false;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.check),
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            setState(() {
+              FocusScope.of(context).requestFocus(new FocusNode());
+              final scaffold = ScaffoldMessenger.of(context);
+              scaffold.showSnackBar(SnackBar(
+                duration: Duration(milliseconds: 500),
+                content: const Text('Settings changed'),
+              ));
+              if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
+                PlayerPrefs.demo = true;
+              else
+                PlayerPrefs.demo = false;
 
-            this.widget.reload();
-            _fetchQualityProfiles();
-          });
-        },
-      ),
-      appBar: AppBar(
-          title: Container(
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Settings'),
-              ),
-            ),
-            Expanded(
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: iconAdvanced,
-                      onPressed: () {
-                        setState(() {
-                          if (PlayerPrefs.showAdvancedSettings)
-                            iconAdvanced = Icon(Icons.add_box);
-                          else
-                            iconAdvanced = Icon(Icons.indeterminate_check_box);
-                          PlayerPrefs.showAdvancedSettings = !PlayerPrefs.showAdvancedSettings;
-                          prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
-                        });
-                      },
-                    )))
-          ],
+              this.widget.reload();
+              _fetchQualityProfiles();
+            });
+          },
         ),
-      )),
-      body: SingleChildScrollView(
-          child: Container(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              child: Column(children: <Widget>[
-                Container(
-                    padding: EdgeInsets.only(bottom: 30),
-                    child: PlayerPrefs.showAdvancedSettings ? Column(children: <Widget>[
-                      Align(
+        appBar: AppBar(
+            title: Container(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Settings'),
+                    ),
+                  ),
+                  Expanded(
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            icon: iconAdvanced,
+                            onPressed: () {
+                              setState(() {
+                                if (PlayerPrefs.showAdvancedSettings)
+                                  iconAdvanced = Icon(Icons.add_box);
+                                else
+                                  iconAdvanced = Icon(Icons.indeterminate_check_box);
+                                PlayerPrefs.showAdvancedSettings = !PlayerPrefs.showAdvancedSettings;
+                                this.widget.prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
+                              });
+                            },
+                          )))
+                ],
+              ),
+            )),
+        body: SingleChildScrollView(
+            child: Container(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                child: Column(children: <Widget>[
+                  Container(
+                      padding: EdgeInsets.only(bottom: 30),
+                      child: PlayerPrefs.showAdvancedSettings ? Column(children: <Widget>[
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Stats',
+                              style: TextStyle(fontSize: 30),
+                            )),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: SwitchListTile(
+                              title: Text('Stats for nerds'),
+                              value: PlayerPrefs.statsForNerds,
+                              onChanged: (bool newValue) {
+                                setState(() {
+                                  PlayerPrefs.statsForNerds = newValue;
+                                  this.widget.prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
+                                });
+                              },
+                            ))
+                      ]) : Container()),
+                  Container(
+                      child: Column(children: <Widget>[
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Radarr settings',
+                              style: TextStyle(fontSize: 30),
+                            )),
+                        Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: MyTextField(
+                                onChanged: (String url) {
+                                  setState(() {
+                                    PlayerPrefs.radarrApiKey = url;
+                                    this.widget.prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
+                                  });
+                                },
+                                autocorrect: false,
+                                decoration: InputDecoration(
+                                    labelText: 'Api key',
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Api key'),
+                                text: PlayerPrefs.radarrApiKey)),
+                        Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: MyTextField(
+                                onChanged: (String url) {
+                                  setState(() {
+                                    PlayerPrefs.radarrURL = url;
+                                    this.widget.prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
+                                  });
+                                },
+                                autocorrect: false,
+                                decoration: InputDecoration(
+                                    labelText: 'Radarr URL',
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Radarr URL'),
+                                text: PlayerPrefs.radarrURL)),
+                        Container(
+                            child: PlayerPrefs.showAdvancedSettings ? Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Stack(children: <Widget>[
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 10),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Default profile',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                            ),
+                                          ),
+                                          Align(
+                                              alignment: Alignment.centerRight,
+                                              child: defaultProfile != null
+                                                  ? DropdownButton<String>(
+                                                value: defaultProfile,
+                                                icon: Icon(Icons.arrow_downward),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20),
+                                                underline: Container(
+                                                  height: 2,
+                                                  color: Colors.red,
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    defaultProfile = newValue;
+                                                    setState(() {
+                                                      PlayerPrefs.defaultProfile = profiles.where((element) => element["name"] == newValue).toList()[0]["id"];
+                                                      this.widget.prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
+                                                    });
+                                                  });
+                                                },
+                                                items: items,
+                                              )
+                                                  : CircularProgressIndicator())
+                                        ])),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Stack(children: <Widget>[
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 10),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Ultra HD profile',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                            ),
+                                          ),
+                                          Align(
+                                              alignment: Alignment.centerRight,
+                                              child: uhdProfile != null
+                                                  ? DropdownButton<String>(
+                                                value: uhdProfile,
+                                                icon: Icon(Icons.arrow_downward),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20),
+                                                underline: Container(
+                                                  height: 2,
+                                                  color: Colors.red,
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    uhdProfile = newValue;
+                                                    setState(() {
+                                                      PlayerPrefs.uhdProfile = profiles.where((element) => element["name"] == newValue).toList()[0]["id"];
+                                                      this.widget.prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
+                                                    });
+                                                  });
+                                                },
+                                                items: items,
+                                              )
+                                                  : CircularProgressIndicator())
+                                        ])),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Stack(children: <Widget>[
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 10),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Movie info language',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                            ),
+                                          ),
+                                          Align(
+                                              alignment: Alignment.centerRight,
+                                              child: currLang != null
+                                                  ? DropdownButton<String>(
+                                                value: currLang,
+                                                icon: Icon(Icons.arrow_downward),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: TextStyle(fontSize: 20),
+                                                underline: Container(
+                                                  height: 2,
+                                                  color: Colors.red,
+                                                ),
+                                                onChanged: (String newValue) {
+                                                  setState(() {
+                                                    currLang = newValue;
+                                                    _updateLang();
+                                                  });
+                                                },
+                                                items: lang,
+                                              )
+                                                  : CircularProgressIndicator())
+                                        ])),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Root folder',
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.only(top: 10),
+                                      child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: currRootFolder != null
+                                              ? DropdownButton<String>(
+                                            isExpanded: true,
+                                            value: currRootFolder,
+                                            icon: Icon(Icons.arrow_downward),
+                                            iconSize: 24,
+                                            elevation: 16,
+                                            style: TextStyle(fontSize: 20),
+                                            underline: Container(
+                                              height: 2,
+                                              color: Colors.red,
+                                            ),
+                                            onChanged: (String newValue) {
+                                              setState(() {
+                                                currRootFolder = newValue;
+                                                PlayerPrefs.dlPath = newValue;
+                                              });
+                                            },
+                                            items: itemsRootFolder,
+                                          )
+                                              : CircularProgressIndicator())),
+                                ]
+                            ) : Container()
+                        ),
+                      ])),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Stats',
+                            'Sabnzbd settings',
                             style: TextStyle(fontSize: 30),
-                          )),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: SwitchListTile(
-                            title: Text('Stats for nerds'),
-                            value: PlayerPrefs.statsForNerds,
-                            onChanged: _changeStatForNerds,
-                          ))
-                    ]) : Container()),
-                Container(
-                    child: Column(children: <Widget>[
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Radarr settings',
-                        style: TextStyle(fontSize: 30),
-                      )),
+                          ))),
                   Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: MyTextField(
-                          onChanged: _changeRadarrApiKey,
+                          onChanged: (String url) {
+                            setState(() {
+                              PlayerPrefs.sabApiKey = url;
+                              this.widget.prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+                            });
+                          },
                           autocorrect: false,
                           decoration: InputDecoration(
                               labelText: 'Api key',
                               border: OutlineInputBorder(),
                               hintText: 'Api key'),
-                          text: PlayerPrefs.radarrApiKey)),
+                          text: PlayerPrefs.sabApiKey)),
                   Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: MyTextField(
-                          onChanged: _changeRadarrURL,
+                          onChanged: (String url) {
+                            setState(() {
+                              PlayerPrefs.sabURL = url;
+                              this.widget.prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
+                            });
+                          },
                           autocorrect: false,
                           decoration: InputDecoration(
-                              labelText: 'Radarr URL',
+                              labelText: 'Sabnzbd URL',
                               border: OutlineInputBorder(),
-                              hintText: 'Radarr URL'),
-                          text: PlayerPrefs.radarrURL)),
-                  Container(
-                    child: PlayerPrefs.showAdvancedSettings ? Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Stack(children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Default profile',
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                  ),
-                                ),
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: defaultProfile != null
-                                        ? DropdownButton<String>(
-                                      value: defaultProfile,
-                                      icon: Icon(Icons.arrow_downward),
-                                      iconSize: 24,
-                                      elevation: 16,
-                                      style: TextStyle(fontSize: 20),
-                                      underline: Container(
-                                        height: 2,
-                                        color: Colors.red,
+                              hintText: 'Sabnzbd URL'),
+                          text: PlayerPrefs.sabURL)),
+                  Padding(
+                    padding: EdgeInsets.only(top: 40, right: 40, left: 40),
+                    child: Container(
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                              child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      showAlertDialogAbout(context);
+                                    },
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            style: TextStyle(fontSize: 18),
+                                            text: "about ",
+                                          ),
+                                          WidgetSpan(
+                                            alignment:
+                                            PlaceholderAlignment.middle,
+                                            child: Icon(Icons.info,
+                                                color: Colors.white),
+                                          )
+                                        ],
                                       ),
-                                      onChanged: (String newValue) {
-                                        setState(() {
-                                          defaultProfile = newValue;
-                                          _changeDefaultProfile(profiles
-                                              .where((element) =>
-                                          element["name"] == newValue)
-                                              .toList()[0]["id"]);
-                                        });
-                                      },
-                                      items: items,
-                                    )
-                                        : CircularProgressIndicator())
-                              ])),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Stack(children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Ultra HD profile',
-                                      style: TextStyle(fontSize: 20),
                                     ),
-                                  ),
-                                ),
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: uhdProfile != null
-                                        ? DropdownButton<String>(
-                                      value: uhdProfile,
-                                      icon: Icon(Icons.arrow_downward),
-                                      iconSize: 24,
-                                      elevation: 16,
-                                      style: TextStyle(fontSize: 20),
-                                      underline: Container(
-                                        height: 2,
-                                        color: Colors.red,
+                                  ))),
+                          Expanded(
+                              child: Container(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showAlertDialogConfirm(context);
+                                    },
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            style: TextStyle(fontSize: 18),
+                                            text: "delete ",
+                                          ),
+                                          WidgetSpan(
+                                            alignment:
+                                            PlaceholderAlignment.middle,
+                                            child: Icon(Icons.delete,
+                                                color: Colors.white),
+                                          )
+                                        ],
                                       ),
-                                      onChanged: (String newValue) {
-                                        setState(() {
-                                          uhdProfile = newValue;
-                                          _changeUhdProfile(profiles
-                                              .where((element) =>
-                                          element["name"] == newValue)
-                                              .toList()[0]["id"]);
-                                        });
-                                      },
-                                      items: items,
-                                    )
-                                        : CircularProgressIndicator())
-                              ])),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Stack(children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(top: 10),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Movie info language',
-                                      style: TextStyle(fontSize: 20),
                                     ),
-                                  ),
-                                ),
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: currLang != null
-                                        ? DropdownButton<String>(
-                                      value: currLang,
-                                      icon: Icon(Icons.arrow_downward),
-                                      iconSize: 24,
-                                      elevation: 16,
-                                      style: TextStyle(fontSize: 20),
-                                      underline: Container(
-                                        height: 2,
-                                        color: Colors.red,
-                                      ),
-                                      onChanged: (String newValue) {
-                                        setState(() {
-                                          currLang = newValue;
-                                          _updateLang();
-                                        });
-                                      },
-                                      items: lang,
-                                    )
-                                        : CircularProgressIndicator())
-                              ])),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Root folder',
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(top: 10),
-                            child: Align(
-                                alignment: Alignment.centerRight,
-                                child: currRootFolder != null
-                                    ? DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: currRootFolder,
-                                  icon: Icon(Icons.arrow_downward),
-                                  iconSize: 24,
-                                  elevation: 16,
-                                  style: TextStyle(fontSize: 20),
-                                  underline: Container(
-                                    height: 2,
-                                    color: Colors.red,
-                                  ),
-                                  onChanged: (String newValue) {
-                                    setState(() {
-                                      currRootFolder = newValue;
-                                      PlayerPrefs.dlPath = newValue;
-                                    });
-                                  },
-                                  items: itemsRootFolder,
-                                )
-                                    : CircularProgressIndicator())),
-                      ]
-                    ) : Container()
-                  ),
-                ])),
-                Padding(
-                    padding: EdgeInsets.only(top: 40),
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Sabnzbd settings',
-                          style: TextStyle(fontSize: 30),
-                        ))),
-                Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: MyTextField(
-                        onChanged: _changeSabApiKey,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                            labelText: 'Api key',
-                            border: OutlineInputBorder(),
-                            hintText: 'Api key'),
-                        text: PlayerPrefs.sabApiKey)),
-                Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: MyTextField(
-                        onChanged: _changeSabURL,
-                        autocorrect: false,
-                        decoration: InputDecoration(
-                            labelText: 'Sabnzbd URL',
-                            border: OutlineInputBorder(),
-                            hintText: 'Sabnzbd URL'),
-                        text: PlayerPrefs.sabURL)),
-                Padding(
-                  padding: EdgeInsets.only(top: 40, right: 40, left: 40),
-                  child: Container(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                            child: Container(
-                                alignment: Alignment.centerLeft,
-                                child: TextButton(
-                                  onPressed: () {
-                                    showAlertDialogAbout(context);
-                                  },
-                                  child: RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          style: TextStyle(fontSize: 18),
-                                          text: "about ",
-                                        ),
-                                        WidgetSpan(
-                                          alignment:
-                                              PlaceholderAlignment.middle,
-                                          child: Icon(Icons.info,
-                                              color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ))),
-                        Expanded(
-                            child: Container(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showAlertDialogConfirm(context);
-                                  },
-                                  child: RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          style: TextStyle(fontSize: 18),
-                                          text: "delete ",
-                                        ),
-                                        WidgetSpan(
-                                          alignment:
-                                              PlaceholderAlignment.middle,
-                                          child: Icon(Icons.delete,
-                                              color: Colors.white),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )))
-                      ],
+                                  )))
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ]))),
+                ]))),
+      ),
     );
   }
 }

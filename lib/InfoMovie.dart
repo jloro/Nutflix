@@ -60,24 +60,32 @@ void DeleteMovie(Movie movie) async {
 class InfoMovie extends StatefulWidget {
   static const String route = '/movies/info';
 
+  final Movie movie;
+
+  InfoMovie({Key key, this.movie}) : super(key: key);
+
   @override
   _InfoMovieState createState() => _InfoMovieState();
 }
 
 class _InfoMovieState extends State<InfoMovie> {
   bool _statsForNerdsState = false;
+  MaterialColor circleColor;
+  String state;
 
   @override
   void initState() {
+    if (this.widget.movie.status == Status.Downloaded) {
+      circleColor = Colors.green;
+      state = "Downloaded";
+    } else if (this.widget.movie.status == Status.Queued) {
+      circleColor = Colors.purple;
+      state = "Queued";
+    } else if (this.widget.movie.status == Status.Missing) {
+      circleColor = Colors.yellow;
+      state = "Missing";
+    }
     super.initState();
-    _loadPrefs();
-  }
-
-  _loadPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _statsForNerdsState = (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
-    });
   }
 
   showAlertDialog(BuildContext context, Movie movie) {
@@ -118,7 +126,6 @@ class _InfoMovieState extends State<InfoMovie> {
 
   @override
   Widget build(BuildContext context) {
-    final Movie movie = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
@@ -130,33 +137,66 @@ class _InfoMovieState extends State<InfoMovie> {
                     height: 200,
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: NetworkImage(movie.GetFanart()),
+                            image: NetworkImage(this.widget.movie.GetFanart()),
                             fit: BoxFit.cover)))),
             Align(
               alignment: Alignment.center,
               child: Text(
-                movie.GetTitle(),
+                this.widget.movie.GetTitle(),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 30),
               ),
             ),
             Padding(
               padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'duree: ${(movie.GetRuntime() / 60).floor()}h${(movie.GetRuntime() % 60).toString().padLeft(2, '0')}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15),
+              child: Stack(
+              children: <Widget>[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'duree: ${(this.widget.movie.GetRuntime() / 60).floor()}h${(this.widget.movie.GetRuntime() % 60).toString().padLeft(2, '0')}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          style: TextStyle(fontSize: 15),
+                          text: '$state ',
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Stack(
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                color: circleColor,
+                                size: 16,
+                              ),
+                            Icon(
+                              Icons.panorama_fish_eye_outlined,
+                              color: Colors.black,
+                              size: 16,
+                              ),
+                            ],
+                          )
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ])
             ),
             Padding(
               padding: EdgeInsets.only(left: 20, right: 20, top: 10),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'genres: ${movie.GetGenres().join(', ')}',
+                  'genres: ${this.widget.movie.GetGenres().join(', ')}',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15),
                 ),
@@ -167,7 +207,7 @@ class _InfoMovieState extends State<InfoMovie> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  movie.GetOverview(),
+                  this.widget.movie.GetOverview(),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 20),
                 ),
@@ -178,7 +218,7 @@ class _InfoMovieState extends State<InfoMovie> {
                 child: ElevatedButton(
                     child: Text('Delete'),
                     onPressed: () {
-                      showAlertDialog(context, movie);
+                      showAlertDialog(context, this.widget.movie);
                     },
                     style: ButtonStyle(
                       backgroundColor:
@@ -186,71 +226,71 @@ class _InfoMovieState extends State<InfoMovie> {
                     ))),
             Container(
                 padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
-                child: _statsForNerdsState && movie.status == Status.Downloaded
+                child: _statsForNerdsState && this.widget.movie.status == Status.Downloaded
                     ? Column(
                         children: <Widget>[
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text('Filename:${movie.GetMovieFileName()}'),
+                            child: Text('Filename:${this.widget.movie.GetMovieFileName()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Size: ${(movie.GetMovieSize() * 0.000000001).toStringAsFixed(2)} GB'),
+                                'Size: ${(this.widget.movie.GetMovieSize() * 0.000000001).toStringAsFixed(2)} GB'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text('Quality: ${movie.GetQualityName()}'),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                                'Quality Source: ${movie.GetQualitySource()}'),
+                            child: Text('Quality: ${this.widget.movie.GetQualityName()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Resolution: ${movie.GetQualityResolution().toString()}'),
+                                'Quality Source: ${this.widget.movie.GetQualitySource()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Audio Bitrate: ${(movie.GetAudioBitrate() * 0.000001).toStringAsFixed(2)} MB'),
+                                'Resolution: ${this.widget.movie.GetQualityResolution().toString()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Audio channels: ${movie.GetAudioChannels().toString()}'),
+                                'Audio Bitrate: ${(this.widget.movie.GetAudioBitrate() * 0.000001).toStringAsFixed(2)} MB'),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                                'Audio channels: ${this.widget.movie.GetAudioChannels().toString()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child:
-                                Text('Audio codec: ${movie.GetAudioCodec()}'),
+                                Text('Audio codec: ${this.widget.movie.GetAudioCodec()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child:
-                                Text('Languages: ${movie.GetAudioLanguages()}'),
+                                Text('Languages: ${this.widget.movie.GetAudioLanguages()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Video Bit Depth: ${movie.GetVideoBitDepth().toString()}'),
+                                'Video Bit Depth: ${this.widget.movie.GetVideoBitDepth().toString()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                                'Video Bitrate: ${(movie.GetVideoBitrate() * 0.000001).toStringAsFixed(2)} MB'),
+                                'Video Bitrate: ${(this.widget.movie.GetVideoBitrate() * 0.000001).toStringAsFixed(2)} MB'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child:
-                                Text('Video codec: ${movie.GetVideoCodec()}'),
+                                Text('Video codec: ${this.widget.movie.GetVideoCodec()}'),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child:
-                                Text('Fps: ${movie.GetVideoFps().toString()}'),
+                                Text('Fps: ${this.widget.movie.GetVideoFps().toString()}'),
                           )
                         ],
                       )

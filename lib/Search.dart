@@ -111,39 +111,37 @@ class Search extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Search'),
-      ),
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: SearchBar<Movie>(
-          textStyle: TextStyle(
-            color: Colors.white
-          ),
-          onError: (Error error) {
-            developer.log(error.toString());
-            return Text('Failed to load movies, check your radarr settings.');
-          },
-          emptyWidget: Text('No result found'),
-          minimumChars: 1,
-          onSearch: FetchSearch,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          crossAxisCount: 1,
-          onItemFound: (Movie movie, int i) {
-            return CustomListItem(movie: movie);
-          },
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Search'),
         ),
-      )),
+        body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: SearchBar<Movie>(
+                textStyle: TextStyle(
+                    color: Colors.white
+                ),
+                onError: (Error error) {
+                  developer.log(error.toString());
+                  return Text('Failed to load movies, check your radarr settings.');
+                },
+                emptyWidget: Text('No result found'),
+                minimumChars: 1,
+                onSearch: FetchSearch,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                crossAxisCount: 1,
+                onItemFound: (Movie movie, int i) {
+                  return CustomListItem(movie: movie);
+                },
+              ),
+            )),
+      ),
     );
   }
 }
-
-// class _SearchState extends State<Search> {
-//   Future<List<Movie>> movies;
-//
-//   }
-//
-// }

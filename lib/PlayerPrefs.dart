@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 class PlayerPrefs
 {
   static const String statsForNerdsKey = "statsForNerds";
@@ -36,4 +38,29 @@ class PlayerPrefs
   static const String firstLaunchKey = "firstLaunch";
   static bool firstLaunch = true;
 
+  static void Reset(SharedPreferences prefs)
+  {
+    PlayerPrefs.statsForNerds = false;
+    PlayerPrefs.radarrURL = null;
+    PlayerPrefs.radarrApiKey = null;
+    PlayerPrefs.defaultProfile = 1;
+    PlayerPrefs.uhdProfile = 5;
+    PlayerPrefs.sabURL = null;
+    PlayerPrefs.sabApiKey = null;
+    PlayerPrefs.showAdvancedSettings = false;
+
+    prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
+    prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
+    prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
+    prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
+    prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
+    prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
+    prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
+    prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
+
+    if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
+      PlayerPrefs.demo = true;
+    else
+      PlayerPrefs.demo = false;
+  }
 }

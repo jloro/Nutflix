@@ -95,9 +95,9 @@ Future<String> GetDiskSizeLeft() async
 class Movies extends StatefulWidget {
   static const String route = '/movies';
   static const int index = 0;
-  final SharedPreferences prefs;
+  //final SharedPreferences prefs;
 
-  Movies({ Key key, @required this.prefs }) : super(key: key);
+  Movies({ Key key }) : super(key: key);
 
   @override
   _MoviesState createState() => _MoviesState();
@@ -107,32 +107,11 @@ class _MoviesState extends State<Movies> {
   Future<List<Movie>> _fetchMovies;
   Future<String> _getSizeDisk;
 
-  _loadPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      PlayerPrefs.statsForNerds =
-        (prefs.getBool(PlayerPrefs.statsForNerdsKey) ?? false);
-      PlayerPrefs.radarrURL =
-        (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
-      PlayerPrefs.radarrApiKey =
-        (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
-      PlayerPrefs.dlPath =
-        (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
-      PlayerPrefs.showAdvancedSettings =
-        (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
-
-      _fetchMovies = fetchMovies();
-      _getSizeDisk = GetDiskSizeLeft();
-
-      if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
-        PlayerPrefs.demo = true;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
+    _fetchMovies = fetchMovies();
+    _getSizeDisk = GetDiskSizeLeft();
   }
 
   Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () {
