@@ -1,13 +1,13 @@
 {
-    "name": "Tap Hero",
-    "short_name": "Tap Hero",
+    "name": "nutflix",
+    "short_name": "nutflix",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#000000", // any HEX color works
-    "theme_color": "#000000", // any HEX color works
-    "description": "anything you want here",
-    "orientation": "portrait" // or changed as you wish
-    "prefer_related_application": false,
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter application.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
     "icons": [
         {
             "src": "\/icons/android-icon-36x36.png",
