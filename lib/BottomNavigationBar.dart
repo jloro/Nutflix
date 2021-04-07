@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class MyBottomNavigationBar extends StatefulWidget {
   MyBottomNavigationBar(
@@ -27,6 +29,7 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
+			height: kIsWeb ? 75 : null,
         decoration: BoxDecoration(
           boxShadow: <BoxShadow>[
             BoxShadow(
