@@ -69,7 +69,6 @@ class InfoMovie extends StatefulWidget {
 }
 
 class _InfoMovieState extends State<InfoMovie> {
-  bool _statsForNerdsState = false;
   MaterialColor circleColor;
   String state;
 
@@ -126,7 +125,6 @@ class _InfoMovieState extends State<InfoMovie> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
         body: ListView(
@@ -165,7 +163,7 @@ class _InfoMovieState extends State<InfoMovie> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          style: TextStyle(fontSize: 15),
+                          style: TextStyle(fontSize: 15, color: Colors.white),
                           text: '$state ',
                         ),
                         WidgetSpan(
@@ -226,7 +224,7 @@ class _InfoMovieState extends State<InfoMovie> {
                     ))),
             Container(
                 padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
-                child: _statsForNerdsState && this.widget.movie.status == Status.Downloaded
+                child: PlayerPrefs.statsForNerds && this.widget.movie.status == Status.Downloaded
                     ? Column(
                         children: <Widget>[
                           Align(

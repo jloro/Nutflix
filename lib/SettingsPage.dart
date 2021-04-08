@@ -65,7 +65,7 @@ class _SettingsState extends State<Settings> {
   ].map<DropdownMenuItem<String>>((String value) {
     return DropdownMenuItem<String>(
       value: value,
-      child: Text(value),
+      child: Text(value, style: TextStyle(color: Colors.white)),
     );
   }).toList();
 
@@ -119,8 +119,8 @@ class _SettingsState extends State<Settings> {
         text: TextSpan(
           children: [
             TextSpan(
-              text:
-                  "This app is intended for personal and non commercial use only.\nAll movies metadata and poster are from TMDB (",
+              text: "This app is intended for personal and non commercial use only.\nAll movies metadata and poster are from TMDB (",
+              style: TextStyle(color: Colors.white)
             ),
             WidgetSpan(
                 child: InkWell(
@@ -130,8 +130,8 @@ class _SettingsState extends State<Settings> {
                     ),
                     onTap: () => launch('https://www.themoviedb.org/'))),
             TextSpan(
-              text:
-                  ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.\n\nThis app doesn't allow nor promote illegal download of copyrighted content, only use it for movies for which you have rights according to your country's legislation.\n\nWe don't store any content, metadata or user information. This app is only an interface for third-parties services.",
+              style: TextStyle(color: Colors.white),
+              text: ") and used in agreement with their terms of use.\nAll the movies poster belongs to their respective owners.\n\nThis app doesn't allow nor promote illegal download of copyrighted content, only use it for movies for which you have rights according to your country's legislation.\n\nWe don't store any content, metadata or user information. This app is only an interface for third-parties services.",
             ),
           ],
         ),
@@ -154,55 +154,6 @@ class _SettingsState extends State<Settings> {
       currLang = "English";
       iconAdvanced = Icon(Icons.add_box);
       _updateLang();
-    });
-  }
-
-  _changeRadarrURL(String url) async {
-    setState(() {
-      PlayerPrefs.radarrURL = url;
-      this.widget.prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
-    });
-  }
-
-  _changeRadarrApiKey(String url) async {
-    setState(() {
-      PlayerPrefs.radarrApiKey = url;
-      this.widget.prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
-    });
-  }
-
-  _changeSabURL(String url) async {
-    setState(() {
-      PlayerPrefs.sabURL = url;
-      this.widget.prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
-    });
-  }
-
-  _changeSabApiKey(String url) async {
-    setState(() {
-      PlayerPrefs.sabApiKey = url;
-      this.widget.prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
-    });
-  }
-
-  _changeDefaultProfile(int profile) async {
-    setState(() {
-      PlayerPrefs.defaultProfile = profile;
-      this.widget.prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
-    });
-  }
-
-  _changeUhdProfile(int profile) async {
-    setState(() {
-      PlayerPrefs.uhdProfile = profile;
-      this.widget.prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
-    });
-  }
-
-  _changeStatForNerds(bool value) async {
-    setState(() {
-      PlayerPrefs.statsForNerds = value;
-      this.widget.prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
     });
   }
 
@@ -314,7 +265,7 @@ class _SettingsState extends State<Settings> {
           rootFoldersString.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value, overflow: TextOverflow.ellipsis),
+          child: Text(value, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
         );
       }).toList();
 
@@ -359,7 +310,7 @@ class _SettingsState extends State<Settings> {
       items = profiles.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
-          child: Text(value, overflow: TextOverflow.ellipsis),
+          child: Text(value, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
         );
       }).toList();
       setState(() {});
@@ -721,7 +672,7 @@ class _SettingsState extends State<Settings> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            style: TextStyle(fontSize: 18),
+                                            style: TextStyle(fontSize: 18, color: Colors.white),
                                             text: "about ",
                                           ),
                                           WidgetSpan(
@@ -745,7 +696,7 @@ class _SettingsState extends State<Settings> {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            style: TextStyle(fontSize: 18),
+                                            style: TextStyle(fontSize: 18, color: Colors.white),
                                             text: "delete ",
                                           ),
                                           WidgetSpan(

@@ -78,7 +78,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.red,
         primaryColor: Colors.red,
-        brightness: Brightness.dark
+        brightness: Brightness.dark,
+        backgroundColor: Colors.red
       ),
       home: MyHomePage(title: 'Nutflix', prefs: prefs,),
     );
