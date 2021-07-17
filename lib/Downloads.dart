@@ -101,17 +101,32 @@ class Downloads extends StatefulWidget {
 class _DownloadsState extends State<Downloads> {
   Timer timer;
   Future<List<dynamic>> _fetchDownloads;
-  Future<String> _fetchSpeed;
+  List<dynamic> _downloadList = new List<dynamic>();
+  String _speed;
   int _length = 0;
+  final BoxDecoration _boxDecoration = BoxDecoration(
+    color: Color(0xff424242),
+    borderRadius: BorderRadius.circular(20),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black,
+        spreadRadius: 1,
+        blurRadius: 7,
+        offset: Offset(0, 0), // changes position of shadow
+      ),
+    ],
+  );
 
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
-      setState(() {
-        _fetchDownloads = FetchDownloads();
-        _fetchSpeed = FetchSpeed();
-        this.widget.barKey.currentState.updateDownloads(_length);
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) async {
+      var tmpdownloadList = await FetchDownloads();
+      var tmpspeed = await FetchSpeed();
+      setState(()  {
+        _downloadList = tmpdownloadList;
+        _speed = tmpspeed;
+        this.widget.barKey.currentState.updateDownloads(_downloadList.length == 0 ? 0 : _downloadList[0].length + _downloadList[1].length);
       });
     });
   }
@@ -127,47 +142,32 @@ class _DownloadsState extends State<Downloads> {
     return Scaffold(
         appBar: AppBar(
           title: Row(children: <Widget>[
-            Expanded(
+            const Expanded(
                 child: Align(
               alignment: Alignment.centerLeft,
               child: Text('Downloads'),
             )),
             Expanded(
-                child: Align(
+                child:  Align(
               alignment: Alignment.centerRight,
-              child: FutureBuilder<String>(
-                future: _fetchSpeed,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text('${snapshot.data}bps');
-                  } else {
-                    return Text('');
-                  }
-                },
-              ),
-            )),
+              child: Text('$_speed bps')),
+            ),
           ]),
         ),
-        body: FutureBuilder<List<dynamic>>(
-            future: FetchDownloads(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                _length = snapshot.data[0].length + snapshot.data[1].length;
-                if (snapshot.data[0].length > 0 || snapshot.data[1].length > 0)
-                  return ListView.separated(
-                    padding: EdgeInsets.only(top: 10, bottom: 10),
-                      separatorBuilder: (BuildContext context, int index) => Container(height: 10,),
-                      itemCount: snapshot.data[0].length + snapshot.data[1].length,
+        body: ListView.builder(
+                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+                      //separatorBuilder: (BuildContext context, int index) => Container(height: 10,),
+                      itemCount: _downloadList.length == 0 ? 0 : _downloadList[0].length + _downloadList[1].length,
                       itemBuilder: (context, i) {
                         dynamic movie;
                         String name;
                         bool queue;
-                        if (i < snapshot.data[0].length) {
-                          movie = snapshot.data[0][i];
+                        if (i < _downloadList[0].length) {
+                          movie = _downloadList[0][i];
                           name = movie['filename'];
                           queue = true;
                         } else {
-                          movie = snapshot.data[1][i - snapshot.data[0].length];
+                          movie = _downloadList[1][i - _downloadList[0].length];
                           name = movie['name'];
                           queue = false;
                         }
@@ -175,29 +175,18 @@ class _DownloadsState extends State<Downloads> {
                         Iterable<RegExpMatch> matches = exp.allMatches(name.replaceAll('.', ' ').replaceAll(RegExp(' +'), ' '));
                         String movieName = matches.length > 0 && matches.first.groupCount > 0 ? matches.first.group(1) : name;
                         return Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).bottomAppBarColor,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black,
-                                spreadRadius: 1,
-                                blurRadius: 7,
-                                offset: Offset(0, 0), // changes position of shadow
-                              ),
-                            ],
-                          ),
-                            padding: EdgeInsets.symmetric(
+                          //decoration: _boxDecoration,
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 10),
                             child: Column(children: <Widget>[
                               Padding(
-                                  padding: EdgeInsets.only(bottom: 10),
-                                  child: Text(movieName, style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center,)),
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Text(movieName, textAlign: TextAlign.center,)),
                               queue ? Stack(
                                 children: <Widget>[
                                   Align(
                                       alignment: Alignment.centerRight,
-                                      child: Text('${movie['percentage']}%', style: TextStyle(fontWeight: FontWeight.bold, color: movie['percentage'] == "0" ? Colors.orange : Colors.blue))),
+                                      child: Text('${movie['percentage']}%')),
                                   LinearPercentIndicator(
                                     padding: EdgeInsets.only(left: 20),
                                     width:
@@ -225,14 +214,6 @@ class _DownloadsState extends State<Downloads> {
                                 ],
                               )) : Container()
                             ]));
-                      });
-                else
-                  return Text('No Downloads');
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              // By default, show a loading spinner.
-              return CircularProgressIndicator();
-            }));
+                      }));
   }
 }
