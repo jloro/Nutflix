@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:Nutarr/InfoShow.dart';
 import 'package:flutter/material.dart';
 import 'package:Nutarr/AddMovie.dart';
 import 'package:Nutarr/BottomNavigationBar.dart';
@@ -13,6 +14,7 @@ import 'Downloads.dart';
 import 'Movies.dart';
 import 'PlayerPrefs.dart';
 import 'Search.dart';
+import 'Series.dart';
 import 'SettingsPage.dart';
 
 void main() async {
@@ -37,6 +39,10 @@ void main() async {
     (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
   PlayerPrefs.showAdvancedSettings =
     (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
+  PlayerPrefs.sonarrApiKey =
+    (prefs.getString(PlayerPrefs.sonarrApiKeyKey) ?? null);
+  PlayerPrefs.sonarrURL =
+    (prefs.getString(PlayerPrefs.sonarrURLKey) ?? null);
 
   if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
     PlayerPrefs.demo = true;
@@ -59,9 +65,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: {
         Routes.movies: (cxt) => Movies(),
+        Routes.series: (cxt) => Series(),
         Routes.search: (cxt) => Search(),
         Routes.addMovie: (cxt) => AddMovie(movie: ModalRoute.of(cxt).settings.arguments),
         Routes.infoMovie: (cxt) => InfoMovie(movie: ModalRoute.of(cxt).settings.arguments),
+        Routes.infoShow: (cxt) => InfoShow(show: ModalRoute.of(cxt).settings.arguments),
         Routes.settings: (cxt) => Settings(prefs: prefs),
         Routes.downloading: (cxt) => Downloads()
       },
@@ -111,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<MyBottomNavigationBarState> key = GlobalKey();
 
   UniqueKey keyMovies = UniqueKey();
+  UniqueKey keySeries = UniqueKey();
   UniqueKey keyDownloads = UniqueKey();
   UniqueKey keySettings = UniqueKey();
 
@@ -180,6 +189,10 @@ class _MyHomePageState extends State<MyHomePage> {
               offstage: _currentIndex != Downloads.index,
               child: TickerMode(
                   enabled: _currentIndex == Downloads.index, child: Downloads(barKey: key, key:keyDownloads))),
+          Offstage(
+              offstage: _currentIndex != Series.index,
+              child: TickerMode(
+                  enabled: _currentIndex == Series.index, child: Series(key: keyMovies))),
 
         ],
       ),

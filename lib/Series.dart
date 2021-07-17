@@ -15,19 +15,19 @@ import 'DisplayGridObject.dart';
 import 'Movie.dart';
 import 'DisplayGrid.dart';
 
-Future<List<DisplayGridObject>> fetchMovies() async {
-  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
-  if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
-    return Future.error('No radarr URL specified, go to settings to specified it.');
-  else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
-    return Future.error('No radarr api key specified, go to settings to specified it.');
+Future<List<DisplayGridObject>> fetchSeries() async {
+  String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
+  if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
+    return Future.error('No sonarr URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
+    return Future.error('No sonarr api key specified, go to settings to specified it.');
   else if (PlayerPrefs.demo)
   {
     apiKey = "aaaedca659fa4206bc50153292ba6da2";
     url = "https://nutflix.fr/radarr";
   }
 
-  var response = await http.get('$url/api/v3/movie',
+  var response = await http.get('$url/api/v3/series',
       headers: {
         HttpHeaders.authorizationHeader: apiKey
       });
@@ -35,37 +35,38 @@ Future<List<DisplayGridObject>> fetchMovies() async {
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
+
     List<dynamic> list = json.decode(response.body);
     response = await http.get('$url/api/v3/queue',
         headers: {
           HttpHeaders.authorizationHeader: apiKey
         });
     if (response.statusCode == 200) {
-      List<DisplayGridObject> movies = List<DisplayGridObject>();
+      List<DisplayGridObject> series = List<DisplayGridObject>();
       for (int i = 0; i < list.length; i++) {
-        DisplayGridObject movie = DisplayGridObject(type: Type.Movie, obj: list[i]);
-        movie.status = movie.GetStatus(json.decode(response.body));
-        movies.add(movie);
+        DisplayGridObject show = DisplayGridObject(type: Type.TVShow, obj: list[i]);
+        show.status = show.GetStatus(json.decode(response.body));
+        series.add(show);
       }
-      movies.sort((a, b) => DateTime.parse(b.GetAdded()).compareTo(DateTime.parse(a.GetAdded())));
-      return movies;
+      series.sort((a, b) => DateTime.parse(b.GetAdded()).compareTo(DateTime.parse(a.GetAdded())));
+      return series;
     } else {
       throw Exception('Failed to load queue');
     }
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load Movies, check radarr settings.');
+    throw Exception('Failed to load Series, check sonarr settings.');
   }
 }
 
 Future<String> GetDiskSizeLeft() async
 {
-  String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+  String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
 
-  if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+  if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
     return Future.error('No radarr URL specified, go to settings to specified it.');
-  else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+  else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
     return Future.error('No radarr api key specified, go to settings to specified it.');
   else if (PlayerPrefs.demo)
   {
@@ -94,25 +95,24 @@ Future<String> GetDiskSizeLeft() async
     throw Exception('Failed to load Movie');
   }
 }
-class Movies extends StatefulWidget {
-  static const String route = '/movies';
-  static const int index = 0;
+class Series extends StatefulWidget {
+  static const String route = '/series';
+  static const int index = 1;
   //final SharedPreferences prefs;
 
-  Movies({ Key key }) : super(key: key);
+  Series({ Key key }) : super(key: key);
 
   @override
-  _MoviesState createState() => _MoviesState();
+  _SeriesState createState() => _SeriesState();
 }
 
-class _MoviesState extends State<Movies> {
+class _SeriesState extends State<Series> {
   @override
   Widget build(BuildContext context) {
     return DisplayGrid(
         onTap: (BuildContext context, DisplayGridObject object) {
-          if (object.type == Type.Movie)
-            Navigator.pushNamed(context, Routes.infoMovie, arguments: object.ToMovie());
-    }, fetchMovies: fetchMovies, getSizeDisk: GetDiskSizeLeft, title: 'Movies',);
+            Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
+        }, fetchMovies: fetchSeries, getSizeDisk: GetDiskSizeLeft, title: 'Series');
   }
 
 }

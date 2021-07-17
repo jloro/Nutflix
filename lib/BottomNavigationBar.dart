@@ -47,6 +47,10 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           label: 'Movies',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.theaters),
+          label: 'Series',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.search),
           label: 'Search',
         ),

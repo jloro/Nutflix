@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   static const String route = '/settings';
-  static const int index = 3;
+  static const int index = 4;
 
   final SharedPreferences prefs;
   final void Function() reload;
@@ -656,6 +656,44 @@ class _SettingsState extends State<Settings> {
                               border: OutlineInputBorder(),
                               hintText: 'Sabnzbd URL'),
                           text: PlayerPrefs.sabURL)),
+                  Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Sonarr settings',
+                            style: TextStyle(fontSize: 30),
+                          ))),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: MyTextField(
+                          onChanged: (String url) {
+                            setState(() {
+                              PlayerPrefs.sonarrApiKey = url;
+                              this.widget.prefs.setString(PlayerPrefs.sonarrApiKeyKey, PlayerPrefs.sonarrApiKey);
+                            });
+                          },
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                              labelText: 'Api key',
+                              border: OutlineInputBorder(),
+                              hintText: 'Api key'),
+                          text: PlayerPrefs.sonarrApiKey)),
+                  Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: MyTextField(
+                          onChanged: (String url) {
+                            setState(() {
+                              PlayerPrefs.sonarrURL = url;
+                              this.widget.prefs.setString(PlayerPrefs.sonarrURLKey, PlayerPrefs.sonarrURL);
+                            });
+                          },
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                              labelText: 'Sonarr URL',
+                              border: OutlineInputBorder(),
+                              hintText: 'Sonarr URL'),
+                          text: PlayerPrefs.sonarrURL)),
                   Padding(
                     padding: EdgeInsets.only(top: 40, right: 40, left: 40),
                     child: Container(

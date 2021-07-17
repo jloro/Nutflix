@@ -38,6 +38,12 @@ class PlayerPrefs
   static const String firstLaunchKey = "firstLaunch";
   static bool firstLaunch = true;
 
+  static const String sonarrApiKeyKey = "sonarrApiKey";
+  static String sonarrApiKey;
+
+  static const String sonarrURLKey = "sonarrURL";
+  static String sonarrURL;
+
   static void Reset(SharedPreferences prefs)
   {
     PlayerPrefs.statsForNerds = false;

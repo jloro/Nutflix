@@ -89,7 +89,7 @@ Future<String> FetchSpeed() async {
 
 class Downloads extends StatefulWidget {
   static const String route = '/downloading';
-  static const int index = 2;
+  static const int index = 3;
   final GlobalKey<MyBottomNavigationBarState> barKey;
 
   Downloads({Key key, this.barKey}) : super(key: key);

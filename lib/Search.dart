@@ -105,7 +105,7 @@ class CustomListItem extends StatelessWidget {
 
 class Search extends StatelessWidget {
   static const String route = '/search';
-  static const int index = 1;
+  static const int index = 2;
 
   static List<String> demoImdsIds = ["0029606","0057298","0033891","0045877","0021890","0041098","0028119","0058548","0045094","0020620","0042209","0034012"];
 
