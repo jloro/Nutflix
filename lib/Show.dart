@@ -8,10 +8,20 @@ import 'Movie.dart';
 
 class Show {
   final Map<String, dynamic> obj;
+  List<dynamic> episodes;
   Status status;
   Show({this.obj});
+  bool hasFetchedEpisodes = false;
 
   String GetTitle() { return obj['title']; }
+
+  dynamic GetEpisode(int season, int nb)
+  {
+    for (int i = 0; i < episodes.length; i++) {
+      if (episodes[i]['seasonNumber'] == season && episodes[i]['episodeNumber'] == nb)
+        return episodes[i];
+    }
+  }
 
   String GetOverview() {
     if (obj['overview'] != null) return obj['overview'];
