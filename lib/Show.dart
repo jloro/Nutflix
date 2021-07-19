@@ -48,6 +48,12 @@ class Show {
         return obj['seasons'][i]['statistics'];
     }}
 
+  bool GetIfSeasonMonitored(int nb) {
+    for (int i  = 0; i < obj['seasons'].length; i++) {
+      if (obj['seasons'][i]['seasonNumber'] == nb)
+        return obj['seasons'][i]['monitored'];
+    }}
+
   String GetFanart() {
     List<dynamic> images = obj['images'];
     String ret;
@@ -101,17 +107,14 @@ class Show {
 
   int GetRuntime() { return obj['runtime']; }
 
-  // String ToJson(bool ultrahd)
-  // {
-  //   Map<String, dynamic> toSend = obj;
-  //   toSend['id'] = 0;
-  //   toSend['qualityProfileId'] = ultrahd ? PlayerPrefs.uhdProfile : PlayerPrefs.defaultProfile;
-  //   String path = PlayerPrefs.folderNamingFormat;
-  //   path = path.replaceFirst('{Movie Title}', GetOriginalTitle());
-  //   path = path.replaceFirst('{Release Year}', GetYear());
-  //   path = path.replaceFirst('{Quality Title}', ultrahd ? "UHD" : "Default");
-  //   toSend['path'] = '${PlayerPrefs.dlPath}/$path';
-  //   toSend['monitored'] = true;
-  //   return json.encode(toSend);
-  // }
+  String ToJson()
+  {
+    return json.encode(obj);
+  }
+
+  factory Show.fromJson(Map<String, dynamic> json) {
+    return Show(
+        obj: json
+    );
+  }
 }

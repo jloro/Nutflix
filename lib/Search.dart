@@ -39,7 +39,7 @@ Future<List<Movie>> FetchSearch(String search) async {
     List<Movie> movies = List<Movie>();
     list.forEach((element) {
       Movie movie = Movie(obj: element);
-      if ((movie.GetRelease() != 'N/A' && !PlayerPrefs.demo) || (PlayerPrefs.demo && movie.GetIMDBId() != null && Search.demoImdsIds.contains(movie.GetIMDBId().replaceAll('t', '')))) movies.add(movie);
+      if (movie.GetRelease() != 'N/A') movies.add(movie);
     });
     return movies;
   } else {
@@ -103,12 +103,16 @@ class CustomListItem extends StatelessWidget {
   }
 }
 
-class Search extends StatelessWidget {
+class Search extends StatefulWidget {
   static const String route = '/search';
   static const int index = 2;
 
-  static List<String> demoImdsIds = ["0029606","0057298","0033891","0045877","0021890","0041098","0028119","0058548","0045094","0020620","0042209","0034012"];
+  @override
+  _SearchState createState() => _SearchState();
+}
 
+class _SearchState extends State<Search> {
+  bool _movie = true;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -117,7 +121,32 @@ class Search extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Search'),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text('Search')
+              ),
+              Expanded(
+                  child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                      children: [
+                        Text('Series', style: TextStyle(fontSize: 15)),
+                        Switch(
+                          value: _movie,
+                          onChanged: (bool state){
+                            setState(() {
+                              _movie = !_movie;
+                            });
+                          },
+                        ),
+                        Text('Movies', style: TextStyle(fontSize: 15)),
+                      ]
+
+                  ))
+              )
+            ]
+          )
         ),
         body: SafeArea(
             child: Padding(

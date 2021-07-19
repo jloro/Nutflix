@@ -9,7 +9,7 @@ import 'Movie.dart';
 import 'PlayerPrefs.dart';
 import 'Show.dart';
 
-Future<List<Widget>> fetchEpisodes(Show show) async {
+Future<void> MonitorSeason(Show show, int nb, bool state) async {
   String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
   if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
     return Future.error(
@@ -18,30 +18,23 @@ Future<List<Widget>> fetchEpisodes(Show show) async {
     return Future.error(
         'No sonarr api key specified, go to settings to specified it.');
 
-  var response = await http.get('$url/api/v3/episode?seriesId=${show.GetId()}',
-      headers: {HttpHeaders.authorizationHeader: apiKey});
+  show.obj['seasons'][nb]['monitored'] = state;
+  var response = await http.put('$url/api/v3/series/${show.GetId()}',
+      headers: {HttpHeaders.authorizationHeader: apiKey},
+      body: show.ToJson());
 
-  if (response.statusCode == 200) {
+  if (response.statusCode == 202) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
-
-    List<dynamic> list = json.decode(response.body);
-    List<Widget> seasons = List<Widget>();
-    show.episodes = list;
-    show.hasFetchedEpisodes = true;
-    for (int i in Iterable.generate(show.GetNbSeasons())) {
-      seasons.add(Season(
-          nb: i + 1,
-          sizeOnDisk: show.GetStatPerSeason(i + 1)['sizeOnDisk'],
-          show: show));
-      seasons.add(Padding(
-          padding: EdgeInsets.symmetric(vertical: 0),
-          child: SizedBox(
-            height: 1,
-            child: Container(color: Colors.black),
-          )));
+    if (state) {
+      response = await http.post('$url/api/v3/command',
+          headers: {HttpHeaders.authorizationHeader: apiKey},
+          body: json.encode({
+            'name': 'SeriesSearch',
+            'seriesId': show.GetId()
+          }));
     }
-    return seasons;
+    return;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -178,19 +171,20 @@ class Season extends StatefulWidget {
 
 class _SeasonState extends State<Season> {
   bool _expanded = false;
-  List<Widget> episodes = List<Widget>();
+  List<Widget> episodes;
 
   @override
   void initState() {
-    for (int i = 0; i < this.widget.show.GetStatPerSeason(this.widget.nb)['totalEpisodeCount']; i++) {
-      episodes.add(
-          Episode(episode: this.widget.show.GetEpisode(this.widget.nb, i + 1)));
-    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    episodes = List<Widget>();
+    for (int i = 0; i < this.widget.show.GetStatPerSeason(this.widget.nb)['totalEpisodeCount']; i++) {
+      episodes.add(
+          Episode(episode: this.widget.show.GetEpisode(this.widget.nb, i + 1)));
+    }
     return InkWell(
         onTap: () {
           setState(() {
@@ -203,7 +197,7 @@ class _SeasonState extends State<Season> {
           child: Column(children: [
             Row(children: [
               Flexible(
-                  flex: 2,
+                  flex: 3,
                   child: RichText(
                       text: TextSpan(children: [
                     TextSpan(
@@ -223,10 +217,20 @@ class _SeasonState extends State<Season> {
                   ]))),
               Flexible(
                   child: Align(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.center,
                 child: Icon(_expanded ? Icons.expand_less : Icons.expand_more,
                     color: Colors.white, size: 20),
-              ))
+              )),
+              Flexible(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: IconButton(
+                      onPressed: (){
+                        MonitorSeason(this.widget.show, this.widget.nb, !this.widget.show.GetIfSeasonMonitored(this.widget.nb));
+                      },
+                        icon: Icon(this.widget.show.GetIfSeasonMonitored(this.widget.nb) ? Icons.bookmark : Icons.bookmark_outline,
+                        color: Colors.white, size: 20)),
+                  ))
             ]),
             _expanded
                 ? Padding(
@@ -247,7 +251,7 @@ class _InfoShowState extends State<InfoShow> {
 
   @override
   void initState() {
-    _fetchEpisodes = fetchEpisodes(this.widget.show);
+    _fetchEpisodes = fetchEpisodes();
     if (this.widget.show.status == Status.Downloaded) {
       circleColor = Colors.green;
       state = "Downloaded";
@@ -297,11 +301,86 @@ class _InfoShowState extends State<InfoShow> {
     );
   }
 
+  Future<void> fetchShow() async {
+    String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
+    if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
+      return Future.error(
+          'No sonarr URL specified, go to settings to specified it.');
+    else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
+      return Future.error(
+          'No sonarr api key specified, go to settings to specified it.');
+
+    var response = await http.get('$url/api/v3/series/${this.widget.show.GetId()}',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+
+      Map<String, dynamic> obj = json.decode(response.body);
+      this.widget.show = Show(obj: obj);
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load Series, check sonarr settings.');
+    }
+  }
+
+  Future<List<Widget>> fetchEpisodes() async {
+    String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
+    if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
+      return Future.error(
+          'No sonarr URL specified, go to settings to specified it.');
+    else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
+      return Future.error(
+          'No sonarr api key specified, go to settings to specified it.');
+
+    var response = await http.get('$url/api/v3/episode?seriesId=${this.widget.show.GetId()}',
+        headers: {HttpHeaders.authorizationHeader: apiKey});
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+
+      List<dynamic> list = json.decode(response.body);
+      List<Widget> seasons = List<Widget>();
+      this.widget.show.episodes = list;
+      this.widget.show.hasFetchedEpisodes = true;
+      for (int i in Iterable.generate(this.widget.show.GetNbSeasons())) {
+        seasons.add(Season(
+            nb: i + 1,
+            sizeOnDisk: this.widget.show.GetStatPerSeason(i + 1)['sizeOnDisk'],
+            show: this.widget.show));
+        seasons.add(Padding(
+            padding: EdgeInsets.symmetric(vertical: 0),
+            child: SizedBox(
+              height: 1,
+              child: Container(color: Colors.black),
+            )));
+      }
+      return seasons;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load Series, check sonarr settings.');
+    }
+  }
+
+  Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () async {
+    await fetchShow();
+    setState(() {
+      _fetchEpisodes = fetchEpisodes();
+    });
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
-        body: ListView(
+        body: RefreshIndicator(
+          displacement: 30,
+          onRefresh:_refreshWidget,
+            child: ListView(
           children: <Widget>[
             Padding(
                 padding: EdgeInsets.only(bottom: 10),
@@ -409,78 +488,7 @@ class _InfoShowState extends State<InfoShow> {
                   }
                   return CircularProgressIndicator();
                 })
-            // Container(
-            //     padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
-            //     child: PlayerPrefs.statsForNerds && this.widget.movie.status == Status.Downloaded
-            //         ? Column(
-            //       children: <Widget>[
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text('Filename:${this.widget.movie.GetMovieFileName()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Size: ${(this.widget.movie.GetMovieSize() * 0.000000001).toStringAsFixed(2)} GB'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text('Quality: ${this.widget.movie.GetQualityName()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Quality Source: ${this.widget.movie.GetQualitySource()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Resolution: ${this.widget.movie.GetQualityResolution().toString()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Audio Bitrate: ${(this.widget.movie.GetAudioBitrate() * 0.000001).toStringAsFixed(2)} MB'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Audio channels: ${this.widget.movie.GetAudioChannels().toString()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child:
-            //           Text('Audio codec: ${this.widget.movie.GetAudioCodec()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child:
-            //           Text('Languages: ${this.widget.movie.GetAudioLanguages()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Video Bit Depth: ${this.widget.movie.GetVideoBitDepth().toString()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child: Text(
-            //               'Video Bitrate: ${(this.widget.movie.GetVideoBitrate() * 0.000001).toStringAsFixed(2)} MB'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child:
-            //           Text('Video codec: ${this.widget.movie.GetVideoCodec()}'),
-            //         ),
-            //         Align(
-            //           alignment: Alignment.centerLeft,
-            //           child:
-            //           Text('Fps: ${this.widget.movie.GetVideoFps().toString()}'),
-            //         )
-            //       ],
-            //     )
-            //         : Container())
           ],
-        ));
+        )));
   }
 }
