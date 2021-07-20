@@ -11,14 +11,21 @@ class DisplayGridObject {
   Status status;
   final Map<String, dynamic> obj;
   final Type type;
+  Movie movie;
+  Show show;
 
-  DisplayGridObject({@required this.type, this.obj});
+  DisplayGridObject({@required this.type, this.obj}){
+    if (type == Type.Movie)
+      movie = Movie(obj:obj);
+    else
+      show = Show(obj:obj);
+  }
 
   String GetPoster() {
     List<dynamic> images = obj['images'];
     if (type == Type.Movie && images.length != 0) return images[0]['remoteUrl'].toString().replaceFirst('original', 'w185');
     else if (type == Type.TVShow && images.length >= 2) return images[1]['remoteUrl'];
-    else return 'https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png';
+    else return null;
   }
 
   Status GetStatus(Map<String, dynamic> body) {
@@ -38,6 +45,10 @@ class DisplayGridObject {
   }
 
   int GetId() { return obj['id']; }
+
+  String GetTitle() { return obj['title']; }
+
+  String GetOverview() { return obj['overview']; }
 
   bool GetHasFile() {
     if (type == Type.Movie) return obj['hasFile'];
