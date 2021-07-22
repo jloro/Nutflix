@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'AddShow.dart';
+import 'DownloadNotif.dart';
 import 'Downloads.dart';
 import 'Movies.dart';
 import 'PlayerPrefs.dart';
@@ -120,7 +121,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
-  final GlobalKey<MyBottomNavigationBarState> key = GlobalKey();
+  final GlobalKey<DownloadNotifState> key = GlobalKey();
 
   UniqueKey keyMovies = UniqueKey();
   UniqueKey keySeries = UniqueKey();
@@ -192,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       bottomNavigationBar: MyBottomNavigationBar(
-        key: key,
+        dlNotifKey: key,
         currentIndex: _currentIndex,
         onSelectTab: _selectTab,
       ),

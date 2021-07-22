@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Nutarr/DownloadNotif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -80,7 +81,7 @@ Future<String> FetchSpeed() async {
 class Downloads extends StatefulWidget {
   static const String route = '/downloading';
   static const int index = 3;
-  final GlobalKey<MyBottomNavigationBarState> barKey;
+  final GlobalKey<DownloadNotifState> barKey;
 
   Downloads({Key key, this.barKey}) : super(key: key);
 

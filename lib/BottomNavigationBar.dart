@@ -1,3 +1,4 @@
+import 'package:Nutarr/DownloadNotif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
@@ -5,8 +6,10 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 class MyBottomNavigationBar extends StatefulWidget {
+  final GlobalKey<DownloadNotifState> dlNotifKey;
+
   MyBottomNavigationBar(
-      {Key key, @required this.currentIndex, @required this.onSelectTab})
+      {Key key, @required this.currentIndex, @required this.onSelectTab, @required this.dlNotifKey})
       : super(key: key);
 
   final int currentIndex;
@@ -18,14 +21,6 @@ class MyBottomNavigationBar extends StatefulWidget {
 }
 
 class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
-  int _downloads = 0;
-
-  void updateDownloads(int val) {
-    setState(() {
-      _downloads = val;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,35 +50,7 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           label: 'Search',
         ),
         BottomNavigationBarItem(
-          icon: Stack(
-            children: <Widget>[
-              Icon(Icons.get_app),
-              _downloads == 0
-                  ? UnconstrainedBox()
-                  : Positioned(
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: 12,
-                          minHeight: 12,
-                        ),
-                        child: Text(
-                          '$_downloads',
-                          style: new TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-            ],
-          ),
+          icon: DownloadNotif(key: this.widget.dlNotifKey),
           label: 'Downloads',
         ),
         BottomNavigationBarItem(
