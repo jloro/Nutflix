@@ -87,12 +87,12 @@ class Movie {
   {
     Map<String, dynamic> toSend = obj;
     toSend['id'] = 0;
-    toSend['qualityProfileId'] = ultrahd ? PlayerPrefs.uhdProfile : PlayerPrefs.defaultProfile;
-    String path = PlayerPrefs.folderNamingFormat;
+    toSend['qualityProfileId'] = ultrahd ? PlayerPrefs.radarrUhdProfile : PlayerPrefs.radarrDefaultProfile;
+    String path = PlayerPrefs.radarrFolderNamingFormat;
     path = path.replaceFirst('{Movie Title}', GetOriginalTitle());
     path = path.replaceFirst('{Release Year}', GetYear());
     path = path.replaceFirst('{Quality Title}', ultrahd ? "UHD" : "Default");
-    toSend['path'] = '${PlayerPrefs.dlPath}/$path';
+    toSend['path'] = '${PlayerPrefs.radarrDlPath}/$path';
     toSend['monitored'] = true;
     return json.encode(toSend);
   }

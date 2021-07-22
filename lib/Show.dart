@@ -93,7 +93,7 @@ class Show {
     {
       List<dynamic> queue = body['records'];
       for (int i = 0; i < queue.length; i++) {
-        if (queue[i]['movieId'] == GetId())
+        if (queue[i]['seriesId'] == GetId())
           return Status.Queued;
       }
     }
@@ -111,9 +111,21 @@ class Show {
 
   int GetRuntime() { return obj['runtime']; }
 
-  String ToJson()
+  String ToJson(bool ultrahd)
   {
-    return json.encode(obj);
+    List<dynamic> seasons = List<dynamic>();
+    for (int i in Iterable.generate(GetNbSeasons()))
+      seasons.add({'seasonNumber': i + 1, 'monitored': false});
+
+    String path = PlayerPrefs.sonarrFolderNamingFormat;
+    path = path.replaceFirst('{Movie Title}', GetTitleSlug());
+
+    Map<String, dynamic> toSend = {'tvdbId': GetTVDBId(), 'title': GetTitle(),
+      'QualityProfileId' : ultrahd ? PlayerPrefs.sonarrUhdProfile : PlayerPrefs.sonarrDefaultProfile,
+      'titleSlug' : GetTitleSlug(), 'images': obj['images'], 'seasons': seasons,
+      'LanguageProfileId': 1, 'Path': '${PlayerPrefs.sonarrDlPath}/$path', 'monitored': true};
+
+    return json.encode(toSend);
   }
 
   factory Show.fromJson(Map<String, dynamic> json) {

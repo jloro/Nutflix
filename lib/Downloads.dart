@@ -19,11 +19,6 @@ Future<List<dynamic>> FetchDownloads() async {
     return Future.error('No sabnzbd URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
     return Future.error('No sabnzbd api key specified, go to settings to specified it.');
-  else if (PlayerPrefs.demo)
-  {
-    apiKey = "9756bf7891504405ac9db4f26e0aa3e4";
-    url = "https://nutflix.fr/sabnzbd";
-  }
 
   dynamic response = await http.get(
       '$url/api?mode=queue&apikey=$apiKey&output=json');
@@ -66,11 +61,6 @@ Future<String> FetchSpeed() async {
     return Future.error('No sabnzbd URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sabApiKey == null || PlayerPrefs.sabApiKey == "")
     return Future.error('No sabnzbd api key specified, go to settings to specified it.');
-  else if (PlayerPrefs.demo)
-  {
-    apiKey = "9756bf7891504405ac9db4f26e0aa3e4";
-    url = "https://nutflix.fr/sabnzbd";
-  }
 
   final response = await http.get(
       '$url/api?mode=queue&apikey=$apiKey&output=json');

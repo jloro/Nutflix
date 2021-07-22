@@ -16,7 +16,7 @@ import 'Movies.dart';
 import 'PlayerPrefs.dart';
 import 'Search.dart';
 import 'Series.dart';
-import 'SettingsPage.dart';
+import 'Settings/SettingsPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,25 +28,27 @@ void main() async {
     (prefs.getString(PlayerPrefs.radarrURLKey) ?? null);
   PlayerPrefs.radarrApiKey =
     (prefs.getString(PlayerPrefs.radarrApiKeyKey) ?? null);
-  PlayerPrefs.defaultProfile =
-    (prefs.getInt(PlayerPrefs.defaultProfileKey) ?? 1);
-  PlayerPrefs.uhdProfile = (prefs.getInt(PlayerPrefs.uhdProfileKey) ?? 5);
-  PlayerPrefs.folderNamingFormat =
-    (prefs.getString(PlayerPrefs.folderNamingFormatKey) ?? null);
+  PlayerPrefs.radarrDefaultProfile =
+    (prefs.getInt(PlayerPrefs.radarrDefaultProfileKey) ?? 1);
+  PlayerPrefs.radarrUhdProfile = (prefs.getInt(PlayerPrefs.radarrUhdProfileKey) ?? 5);
+  PlayerPrefs.radarrFolderNamingFormat =
+    (prefs.getString(PlayerPrefs.radarrFolderNamingFormatKey) ?? null);
   PlayerPrefs.sabURL = (prefs.getString(PlayerPrefs.sabURLKey) ?? null);
   PlayerPrefs.sabApiKey =
     (prefs.getString(PlayerPrefs.sabApiKeyKey) ?? null);
-  PlayerPrefs.dlPath =
-    (prefs.getString(PlayerPrefs.dlPathKey) ?? null);
+  PlayerPrefs.radarrDlPath =
+    (prefs.getString(PlayerPrefs.radarrDlPathKey) ?? null);
   PlayerPrefs.showAdvancedSettings =
     (prefs.getBool(PlayerPrefs.showAdvancedSettingsKey) ?? false);
   PlayerPrefs.sonarrApiKey =
     (prefs.getString(PlayerPrefs.sonarrApiKeyKey) ?? null);
   PlayerPrefs.sonarrURL =
     (prefs.getString(PlayerPrefs.sonarrURLKey) ?? null);
-
-  if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
-    PlayerPrefs.demo = true;
+  PlayerPrefs.sonarrDefaultProfile =
+  (prefs.getInt(PlayerPrefs.sonarrDefaultProfileKey) ?? 1);
+  PlayerPrefs.sonarrUhdProfile = (prefs.getInt(PlayerPrefs.sonarrUhdProfileKey) ?? 5);
+  PlayerPrefs.sonarrFolderNamingFormat =
+  (prefs.getString(PlayerPrefs.sonarrFolderNamingFormatKey) ?? null);
 
   PlayerPrefs.firstLaunch = (prefs.getBool(PlayerPrefs.firstLaunchKey) ?? true);
   prefs.setBool(PlayerPrefs.firstLaunchKey, PlayerPrefs.firstLaunch);
@@ -141,15 +143,6 @@ class _MyHomePageState extends State<MyHomePage> {
       keyDownloads = UniqueKey();
     });
   }
-
-  // void _loadPref() async
-  // {
-  //   //SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //   setState(() {
-  //   });
-  //
-  // }
 
   @override
   void initState() {

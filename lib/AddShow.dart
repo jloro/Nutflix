@@ -5,7 +5,6 @@ import 'package:Nutarr/AddObject.dart';
 import 'package:Nutarr/DisplayGridObject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Nutarr/Drawer.dart';
 import 'package:intl/intl.dart';
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,9 +26,7 @@ Future<bool> AddSonarrShow(DisplayGridObject show, bool ultrahd, BuildContext co
       headers: {
         HttpHeaders.authorizationHeader: apiKey
       },
-      body: jsonEncode({'tvdbId': show.show.GetTVDBId(), 'title': show.GetTitle(), 'QualityProfileId' : 1,
-        'titleSlug' : show.show.GetTitleSlug(), 'images': show.obj['images'], 'seasons': seasons,
-        'LanguageProfileId': 1, 'Path': '/home/jules/Videos/${show.GetTitle()}', 'monitored': true}));
+      body: show.show.ToJson(ultrahd));
 
   if (response.statusCode == 201) {
     return true;

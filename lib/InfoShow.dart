@@ -25,7 +25,7 @@ Future<void> MonitorSeason(Show show, int nb, bool state, Future<void> Function(
       show.obj['seasons'][i]['monitored'] = state;
 
   var response = await http.put('$url/api/v3/series/${show.GetId()}',
-      headers: {HttpHeaders.authorizationHeader: apiKey}, body: show.ToJson());
+      headers: {HttpHeaders.authorizationHeader: apiKey}, body: jsonEncode(show.obj));
 
   if (response.statusCode == 202) {
     // If the server did return a 200 OK response,

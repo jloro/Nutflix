@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:Nutarr/Drawer.dart';
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,11 +20,6 @@ Future<List<DisplayGridObject>> fetchSeries() async {
     return Future.error('No sonarr URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
     return Future.error('No sonarr api key specified, go to settings to specified it.');
-  else if (PlayerPrefs.demo)
-  {
-    apiKey = "aaaedca659fa4206bc50153292ba6da2";
-    url = "https://nutflix.fr/radarr";
-  }
 
   var response = await http.get('$url/api/v3/series',
       headers: {
@@ -68,11 +62,6 @@ Future<String> GetDiskSizeLeft() async
     return Future.error('No radarr URL specified, go to settings to specified it.');
   else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
     return Future.error('No radarr api key specified, go to settings to specified it.');
-  else if (PlayerPrefs.demo)
-  {
-    apiKey = "aaaedca659fa4206bc50153292ba6da2";
-    url = "https://nutflix.fr/radarr";
-  }
 
   var response = await http.get('$url/api/v3/rootfolder',
       headers: {
@@ -82,10 +71,10 @@ Future<String> GetDiskSizeLeft() async
   if (response.statusCode == 200) {
     List<dynamic> list = json.decode(response.body);
     int spaceLeft;
-    if (PlayerPrefs.dlPath == null || PlayerPrefs.dlPath == "")
+    if (PlayerPrefs.sonarrDlPath == null || PlayerPrefs.sonarrDlPath == "")
       spaceLeft = list[0]['freeSpace'];
     else
-      spaceLeft = list[list.indexWhere((element) => element['path'] == PlayerPrefs.dlPath)]['freeSpace'];
+      spaceLeft = list[list.indexWhere((element) => element['path'] == PlayerPrefs.sonarrDlPath)]['freeSpace'];
     return '${(spaceLeft * 0.000000001).round()} GB left';
     // If the server did return a 200 OK response,
     // then parse the JSON.

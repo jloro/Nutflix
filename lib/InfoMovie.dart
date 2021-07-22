@@ -13,12 +13,6 @@ import 'PlayerPrefs.dart';
 void DeleteMovie(Movie movie) async {
   String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
-  if (PlayerPrefs.demo)
-  {
-    apiKey = "aaaedca659fa4206bc50153292ba6da2";
-    url = "https://nutflix.fr/radarr";
-  }
-
   var response = await http.get('$url/api/v3/queue',
       headers: {
         HttpHeaders.authorizationHeader: apiKey

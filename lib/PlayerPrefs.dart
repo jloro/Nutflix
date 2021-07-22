@@ -11,14 +11,14 @@ class PlayerPrefs
   static const String radarrURLKey = "radarrURL";
   static String radarrURL;
 
-  static const String defaultProfileKey = "defaultProfile";
-  static int defaultProfile = 1;
+  static const String radarrDefaultProfileKey = "radarrdefaultProfile";
+  static int radarrDefaultProfile = 1;
 
-  static const String uhdProfileKey = "uhdProfile";
-  static int uhdProfile = 5;
+  static const String radarrUhdProfileKey = "radarruhdProfile";
+  static int radarrUhdProfile = 5;
 
-  static const String folderNamingFormatKey = "folderNamingFormat";
-  static String folderNamingFormat;
+  static const String radarrFolderNamingFormatKey = "radarrfolderNamingFormat";
+  static String radarrFolderNamingFormat;
 
   static const String sabApiKeyKey = "sabApiKey";
   static String sabApiKey;
@@ -26,14 +26,11 @@ class PlayerPrefs
   static const String sabURLKey = "sabURL";
   static String sabURL;
 
-  static const String dlPathKey = "dlPath";
-  static String dlPath;
+  static const String radarrDlPathKey = "radarrdlPath";
+  static String radarrDlPath;
 
   static const String showAdvancedSettingsKey = "showAdvancedSettings";
   static bool showAdvancedSettings = false;
-
-  static bool demo = false;
-  static String demoKey = "demo";
 
   static const String firstLaunchKey = "firstLaunch";
   static bool firstLaunch = true;
@@ -44,29 +41,44 @@ class PlayerPrefs
   static const String sonarrURLKey = "sonarrURL";
   static String sonarrURL;
 
+  static const String sonarrDlPathKey = "sonarrdlPath";
+  static String sonarrDlPath;
+
+  static const String sonarrDefaultProfileKey = "sonarrdefaultProfile";
+  static int sonarrDefaultProfile = 1;
+
+  static const String sonarrUhdProfileKey = "sonarruhdProfile";
+  static int sonarrUhdProfile = 5;
+
+  static const String sonarrFolderNamingFormatKey = "sonarrfolderNamingFormat";
+  static String sonarrFolderNamingFormat;
+
   static void Reset(SharedPreferences prefs)
   {
     PlayerPrefs.statsForNerds = false;
     PlayerPrefs.radarrURL = null;
     PlayerPrefs.radarrApiKey = null;
-    PlayerPrefs.defaultProfile = 1;
-    PlayerPrefs.uhdProfile = 5;
+    PlayerPrefs.radarrDefaultProfile = 1;
+    PlayerPrefs.radarrUhdProfile = 5;
     PlayerPrefs.sabURL = null;
     PlayerPrefs.sabApiKey = null;
     PlayerPrefs.showAdvancedSettings = false;
+    PlayerPrefs.sonarrURL = null;
+    PlayerPrefs.sonarrApiKey = null;
+    PlayerPrefs.sonarrDefaultProfile = 1;
+    PlayerPrefs.sonarrUhdProfile = 5;
 
     prefs.setString(PlayerPrefs.radarrURLKey, PlayerPrefs.radarrURL);
     prefs.setString(PlayerPrefs.radarrApiKeyKey, PlayerPrefs.radarrApiKey);
     prefs.setBool(PlayerPrefs.statsForNerdsKey, PlayerPrefs.statsForNerds);
-    prefs.setInt(PlayerPrefs.defaultProfileKey, PlayerPrefs.defaultProfile);
-    prefs.setInt(PlayerPrefs.uhdProfileKey, PlayerPrefs.uhdProfile);
+    prefs.setInt(PlayerPrefs.radarrDefaultProfileKey, PlayerPrefs.radarrDefaultProfile);
+    prefs.setInt(PlayerPrefs.radarrUhdProfileKey, PlayerPrefs.radarrUhdProfile);
     prefs.setString(PlayerPrefs.sabURLKey, PlayerPrefs.sabURL);
     prefs.setString(PlayerPrefs.sabApiKeyKey, PlayerPrefs.sabApiKey);
     prefs.setBool(PlayerPrefs.showAdvancedSettingsKey, PlayerPrefs.showAdvancedSettings);
-
-    if (PlayerPrefs.radarrURL == PlayerPrefs.demoKey && PlayerPrefs.radarrApiKey == PlayerPrefs.demoKey && PlayerPrefs.sabURL == PlayerPrefs.demoKey && PlayerPrefs.sabApiKey == PlayerPrefs.demoKey)
-      PlayerPrefs.demo = true;
-    else
-      PlayerPrefs.demo = false;
+    prefs.setString(PlayerPrefs.sonarrURLKey, PlayerPrefs.sonarrURL);
+    prefs.setString(PlayerPrefs.sonarrApiKeyKey, PlayerPrefs.sonarrApiKey);
+    prefs.setInt(PlayerPrefs.sonarrDefaultProfileKey, PlayerPrefs.radarrDefaultProfile);
+    prefs.setInt(PlayerPrefs.sonarrUhdProfileKey, PlayerPrefs.sonarrUhdProfile);
   }
 }

@@ -3,7 +3,7 @@ import 'package:Nutarr/Downloads.dart';
 import 'package:Nutarr/InfoMovie.dart';
 import 'package:Nutarr/InfoShow.dart';
 import 'package:Nutarr/Search.dart';
-import 'package:Nutarr/SettingsPage.dart';
+import 'package:Nutarr/Settings/SettingsPage.dart';
 
 import 'AddShow.dart';
 import 'Movies.dart';
