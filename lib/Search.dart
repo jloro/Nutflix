@@ -95,7 +95,9 @@ class CustomListItem extends StatelessWidget {
               onTap: () {
                 FocusScope.of(context).unfocus();
                 if (object.type == Type.Movie)
-                  Navigator.pushNamed(context, Routes.addMovie, arguments: object.movie);
+                  Navigator.pushNamed(context, Routes.addMovie, arguments: object);
+                else
+                  Navigator.pushNamed(context, Routes.addShow, arguments: object);
               },
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

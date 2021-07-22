@@ -28,6 +28,18 @@ class DisplayGridObject {
     else return null;
   }
 
+  String GetFanart() {
+    List<dynamic> images = obj['images'];
+    String ret;
+    for (int i in Iterable.generate(images.length))
+    {
+      if (images[i]['coverType'] == 'fanart')
+        ret = images[i]['remoteUrl'];
+    }
+    if (ret == null) return 'https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png';
+    else return ret;
+  }
+
   Status GetStatus(Map<String, dynamic> body) {
     if (body['totalRecords'] != 0) {
       List<dynamic> queue = body['records'];
@@ -63,6 +75,10 @@ class DisplayGridObject {
     if (type == Type.Movie) return obj['isAvailable'];
     else return obj['statistics']['episodeCount'] != 0;
   }
+
+  String GetIMDBId() { return obj['imdbId']; }
+
+  String GetRating() { return obj['ratings']['value'].toString(); }
 
   Movie ToMovie() {
     Movie ret = Movie(obj: obj);

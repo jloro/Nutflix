@@ -5,6 +5,7 @@ import 'package:Nutarr/InfoShow.dart';
 import 'package:Nutarr/Search.dart';
 import 'package:Nutarr/SettingsPage.dart';
 
+import 'AddShow.dart';
 import 'Movies.dart';
 import 'Series.dart';
 
@@ -15,6 +16,7 @@ class Routes
   static const String series = Series.route;
   static const String search = Search.route;
   static const String addMovie = AddMovie.route;
+  static const String addShow = AddShow.route;
   static const String infoMovie = InfoMovie.route;
   static const String infoShow = InfoShow.route;
   static const String settings = Settings.route;

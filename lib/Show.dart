@@ -68,8 +68,8 @@ class Show {
 
   bool GetEnded() { return obj['ended']; }
 
-  String GetYear() {
-    return obj['year'].toString();
+  String GetShowStatus() {
+    return obj['status'];
   }
 
   String GetAdded() {
@@ -79,6 +79,10 @@ class Show {
   String GetRating() { return obj['ratings']['value'].toString(); }
 
   String GetIMDBId() { return obj['imdbId']; }
+
+  int GetTVDBId() { return obj['tvdbId']; }
+
+  String GetTitleSlug() { return obj['titleSlug']; }
 
   bool GetHasFile() { return obj['statistics']['episodeFileCount'] == obj['statistics']['episodeCount']; }
 

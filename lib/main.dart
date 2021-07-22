@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'AddShow.dart';
 import 'Downloads.dart';
 import 'Movies.dart';
 import 'PlayerPrefs.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
         Routes.series: (cxt) => Series(),
         Routes.search: (cxt) => Search(),
         Routes.addMovie: (cxt) => AddMovie(movie: ModalRoute.of(cxt).settings.arguments),
+        Routes.addShow: (cxt) => AddShow(show: ModalRoute.of(cxt).settings.arguments),
         Routes.infoMovie: (cxt) => InfoMovie(movie: ModalRoute.of(cxt).settings.arguments),
         Routes.infoShow: (cxt) => InfoShow(show: ModalRoute.of(cxt).settings.arguments),
         Routes.settings: (cxt) => Settings(prefs: prefs),
