@@ -413,7 +413,7 @@ class _InfoShowState extends State<InfoShow> {
       this.widget.show.hasFetchedEpisodes = true;
 
       response = await http.get(
-          '$url/api/v3/queue',
+          '$url/api/v3/queue?pageSize=50',
           headers: {HttpHeaders.authorizationHeader: apiKey});
 
       if (response.statusCode == 200){

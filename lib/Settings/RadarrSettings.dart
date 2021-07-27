@@ -28,6 +28,9 @@ class RadarrSettings extends StatefulWidget {
   void UpdateLang() async {
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
+    if (url == null || apiKey == "")
+      return;
+
     mapLang["movieInfoLanguage"] =
         lang.indexWhere((element) => element.value == currLang) + 1;
     var response = await http.put('$url/api/v3/config/ui',
@@ -61,6 +64,11 @@ class RadarrSettingsState extends State<RadarrSettings> {
 
   void FetchQualityProfiles() async {
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+      return;
+    else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+      return;
 
     var response = await http.get(
         '$url/api/v3/qualityprofile',
@@ -97,6 +105,11 @@ class RadarrSettingsState extends State<RadarrSettings> {
   void FetchNamingFormat() async {
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
+    if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+      return;
+    else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+      return;
+
     var response = await http.get(
         '$url/api/v3/config/naming',
         headers: {HttpHeaders.authorizationHeader: apiKey});
@@ -118,6 +131,11 @@ class RadarrSettingsState extends State<RadarrSettings> {
   void FetchLanguage() async {
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
+    if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+      return;
+    else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+      return;
+
     var response = await http.get('$url/api/v3/config/ui',
         headers: {HttpHeaders.authorizationHeader: apiKey});
 
@@ -135,6 +153,11 @@ class RadarrSettingsState extends State<RadarrSettings> {
   }
   void FetchRootFolder() async {
     String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
+
+    if (PlayerPrefs.radarrURL == null || PlayerPrefs.radarrURL == "")
+      return;
+    else if (PlayerPrefs.radarrApiKey == null || PlayerPrefs.radarrApiKey == "")
+      return;
 
     var response = await http.get('$url/api/v3/rootfolder',
         headers: {HttpHeaders.authorizationHeader: apiKey});
@@ -170,10 +193,10 @@ class RadarrSettingsState extends State<RadarrSettings> {
 
   FetchAll()
   {
-    FetchLanguage();
-    FetchNamingFormat();
-    FetchQualityProfiles();
-    FetchRootFolder();
+      FetchLanguage();
+      FetchNamingFormat();
+      FetchQualityProfiles();
+      FetchRootFolder();
   }
 
   ChangeAdvanced()
@@ -191,6 +214,7 @@ class RadarrSettingsState extends State<RadarrSettings> {
   }
   @override
   Widget build(BuildContext context) {
+    print('-- build radarr');
     return  Container(
         child: Column(children: <Widget>[
           Align(

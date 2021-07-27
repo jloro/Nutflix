@@ -62,6 +62,9 @@ class SonarrSettingsState extends State<SonarrSettings> {
   void FetchQualityProfiles() async {
     String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
 
+    if (url == null || apiKey == "")
+      return;
+
     var response = await http.get(
         '$url/api/v3/qualityprofile',
         headers: {HttpHeaders.authorizationHeader: apiKey});
@@ -98,6 +101,9 @@ class SonarrSettingsState extends State<SonarrSettings> {
   void FetchNamingFormat() async {
     String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
 
+    if (url == null || apiKey == "")
+      return;
+
     var response = await http.get(
         '$url/api/v3/config/naming',
         headers: {HttpHeaders.authorizationHeader: apiKey});
@@ -119,6 +125,9 @@ class SonarrSettingsState extends State<SonarrSettings> {
 
   void FetchRootFolder() async {
     String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
+
+    if (url == null || apiKey == "")
+      return;
 
     var response = await http.get('$url/api/v3/rootfolder',
         headers: {HttpHeaders.authorizationHeader: apiKey});

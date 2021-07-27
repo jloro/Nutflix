@@ -56,15 +56,15 @@ class PlayerPrefs
   static void Reset(SharedPreferences prefs)
   {
     PlayerPrefs.statsForNerds = false;
-    PlayerPrefs.radarrURL = null;
-    PlayerPrefs.radarrApiKey = null;
+    PlayerPrefs.radarrURL = '';
+    PlayerPrefs.radarrApiKey = '';
     PlayerPrefs.radarrDefaultProfile = 1;
     PlayerPrefs.radarrUhdProfile = 5;
-    PlayerPrefs.sabURL = null;
-    PlayerPrefs.sabApiKey = null;
+    PlayerPrefs.sabURL = '';
+    PlayerPrefs.sabApiKey = '';
     PlayerPrefs.showAdvancedSettings = false;
-    PlayerPrefs.sonarrURL = null;
-    PlayerPrefs.sonarrApiKey = null;
+    PlayerPrefs.sonarrURL = '';
+    PlayerPrefs.sonarrApiKey = '';
     PlayerPrefs.sonarrDefaultProfile = 1;
     PlayerPrefs.sonarrUhdProfile = 5;
 
