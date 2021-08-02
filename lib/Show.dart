@@ -118,7 +118,7 @@ class Show {
       seasons.add({'seasonNumber': i + 1, 'monitored': false});
 
     String path = PlayerPrefs.sonarrFolderNamingFormat;
-    path = path.replaceFirst('{Movie Title}', GetTitleSlug());
+    path = path.replaceFirst('{Series Title}', GetTitleSlug());
 
     Map<String, dynamic> toSend = {'tvdbId': GetTVDBId(), 'title': GetTitle(),
       'QualityProfileId' : ultrahd ? PlayerPrefs.sonarrUhdProfile : PlayerPrefs.sonarrDefaultProfile,

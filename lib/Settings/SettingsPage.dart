@@ -179,9 +179,10 @@ class _SettingsState extends State<Settings> {
                   onPressed: () async {
                     FilePickerResult result = await FilePicker.platform.pickFiles();
                     if(result != null) {
-                      print(result.files.first.path);
                       if (result.files.first.extension == 'json'){
                         dynamic newPrefs = jsonDecode(await utf8.decode(result.files.first.bytes));
+                        // File file = File(result.files.single.path);
+                        // dynamic newPrefs = jsonDecode(await file.readAsString());
                         setState(() {
                           PlayerPrefs.radarrURL = newPrefs['Radarr']['url'];
                           PlayerPrefs.radarrApiKey = newPrefs['Radarr']['apiKey'];

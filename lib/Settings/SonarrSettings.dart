@@ -113,8 +113,8 @@ class SonarrSettingsState extends State<SonarrSettings> {
       // then parse the JSON.
       Map<String, dynamic> map = json.decode(response.body);
       if (PlayerPrefs.sonarrFolderNamingFormat == null ||
-          PlayerPrefs.sonarrFolderNamingFormat != map['standardEpisodeFormat'])
-        PlayerPrefs.sonarrFolderNamingFormat = map['standardEpisodeFormat'];
+          PlayerPrefs.sonarrFolderNamingFormat != map['seriesFolderFormat'])
+        PlayerPrefs.sonarrFolderNamingFormat = map['seriesFolderFormat'];
       setState(() {});
     } else {
       // If the server did not return a 200 OK response,

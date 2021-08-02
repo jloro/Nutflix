@@ -150,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     setState(() {
       if (PlayerPrefs.firstLaunch) {
-        _currentIndex = 3;
+        _currentIndex = Settings.index;
 
         this.widget.prefs.setBool(PlayerPrefs.firstLaunchKey, false);
       }

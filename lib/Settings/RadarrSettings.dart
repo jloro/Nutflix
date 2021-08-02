@@ -214,7 +214,6 @@ class RadarrSettingsState extends State<RadarrSettings> {
   }
   @override
   Widget build(BuildContext context) {
-    print('-- build radarr');
     return  Container(
         child: Column(children: <Widget>[
           Align(
