@@ -41,10 +41,11 @@ class DisplayGridObject {
   }
 
   Status GetStatus(Map<String, dynamic> body) {
+    String type = this.type == Type.Movie ? 'movieId' : 'seriesId';
     if (body['totalRecords'] != 0) {
       List<dynamic> queue = body['records'];
       for (int i = 0; i < queue.length; i++) {
-        if (queue[i]['seriesId'] == GetId())
+        if (queue[i][type] == GetId())
           return Status.Queued;
       }
     }
@@ -92,4 +93,29 @@ class DisplayGridObject {
     return ret;
   }
 
+  int get hashCode => obj.hashCode;
+
+  @override
+  bool operator ==(o) => o is DisplayGridObject && GetIMDBId() == o.GetIMDBId() && status == o.status;
+
+  static bool Compare(List<DisplayGridObject> a, List<DisplayGridObject> b)
+  {
+    if (a.length != b.length)
+      return false;
+    for (int i in Iterable.generate(a.length))
+    {
+      if (a[i] != b[i])
+        return false;
+    }
+    return true;
+  }
+
+}
+
+Stream<T> CustomStream<T>(Future<T> Function() future) async* {
+  while (true) {
+    await Future.delayed(Duration(seconds: 1));
+    T ret = await future();
+    yield ret;
+  }
 }

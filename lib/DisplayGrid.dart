@@ -1,21 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:Nutarr/DisplayGridObject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:Nutarr/PlayerPrefs.dart';
-import 'package:Nutarr/routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'dart:developer' as developer;
 import 'Movie.dart';
 
 class DisplayGrid extends StatefulWidget {
-  final Future<List<DisplayGridObject>> Function() fetchMovies;
-  final Future<String> Function() getSizeDisk;
+  final Stream<List<DisplayGridObject>> fetchMovies;
+  final Stream<String> getSizeDisk;
   final void Function(BuildContext context, DisplayGridObject object) onTap;
   final String title;
 
@@ -26,22 +19,10 @@ class DisplayGrid extends StatefulWidget {
 }
 
 class _DisplayGridState extends State<DisplayGrid> {
-  Future<List<DisplayGridObject>> _fetchMovies;
-  Future<String> _getSizeDisk;
-
   @override
   void initState() {
     super.initState();
-    _fetchMovies = this.widget.fetchMovies();
-    _getSizeDisk = this.widget.getSizeDisk();
   }
-
-  Future<void> _refreshWidget() => Future.delayed(Duration(seconds: 1), () {
-    setState(() {
-      _fetchMovies = this.widget.fetchMovies();
-      _getSizeDisk = this.widget.getSizeDisk();
-    });
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +40,9 @@ class _DisplayGridState extends State<DisplayGrid> {
                   Expanded(
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: FutureBuilder<String>(
-                          future: _getSizeDisk,
+                        child: StreamBuilder<String>(
+                          initialData: 'fetching...',
+                          stream: this.widget.getSizeDisk,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               return Text(snapshot.data);
@@ -75,11 +57,8 @@ class _DisplayGridState extends State<DisplayGrid> {
               ),
             )
         ),
-        body : RefreshIndicator(
-          displacement: 30,
-          onRefresh: _refreshWidget,
-          child : FutureBuilder<List<DisplayGridObject>>(
-              future : _fetchMovies,
+        body : StreamBuilder<List<DisplayGridObject>>(
+              stream : this.widget.fetchMovies,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return  GridView.builder(
@@ -155,7 +134,6 @@ class _DisplayGridState extends State<DisplayGrid> {
                 return CircularProgressIndicator();
               }
           ),
-        ));
+        );
   }
-
 }

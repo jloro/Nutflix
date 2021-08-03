@@ -9,6 +9,44 @@ import 'package:http/http.dart' as http;
 import 'Movie.dart';
 import 'PlayerPrefs.dart';
 import 'Show.dart';
+import 'DisplayGridObject.dart';
+
+Stream<Status> streamStatus(int id) async* {
+  while (true) {
+    await Future.delayed(Duration(seconds: 1));
+    Status ret = await fetchStatus(id);
+    yield ret;
+  }
+}
+
+Future<Status> fetchStatus(int seriesId) async {
+  String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
+  if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
+    return Future.error('No sonarr URL specified, go to settings to specified it.');
+  else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
+    return Future.error('No sonarr api key specified, go to settings to specified it.');
+
+  var response = await http.get('$url/api/v3/series/$seriesId',
+      headers: {
+        HttpHeaders.authorizationHeader: apiKey
+      });
+  Map<String, dynamic> obj = json.decode(response.body);
+
+  if (response.statusCode == 200) {
+    DisplayGridObject show = DisplayGridObject(type: Type.TVShow, obj: obj);
+    response = await http.get('$url/api/v3/queue',
+        headers: {
+          HttpHeaders.authorizationHeader: apiKey
+        });
+    if (response.statusCode == 200) {
+      return show.GetStatus(json.decode(response.body));
+    }
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load Series, check sonarr settings.');
+  }
+}
 
 Future<void> MonitorSeason(Show show, int nb, bool state, Future<void> Function() refresh) async {
   String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
@@ -308,23 +346,11 @@ class _SeasonState extends State<Season> {
 }
 
 class _InfoShowState extends State<InfoShow> {
-  MaterialColor circleColor;
-  String state;
   Future<List<Widget>> _fetchEpisodes;
 
   @override
   void initState() {
     _fetchEpisodes = fetchEpisodes(_refreshWidget);
-    if (this.widget.show.status == Status.Downloaded) {
-      circleColor = Colors.green;
-      state = "Downloaded";
-    } else if (this.widget.show.status == Status.Queued) {
-      circleColor = Colors.purple;
-      state = "Queued";
-    } else if (this.widget.show.status == Status.Missing) {
-      circleColor = Colors.yellow;
-      state = "Missing";
-    }
     super.initState();
   }
 
@@ -491,33 +517,56 @@ class _InfoShowState extends State<InfoShow> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                style: TextStyle(
-                                    fontSize: 15, color: Colors.white),
-                                text: '$state ',
+                        child: StreamBuilder<Status>(
+                          initialData: this.widget.show.status,
+                          stream: streamStatus(this.widget.show.GetId()).distinct(),
+                          builder: (cxt, snapshot){
+                            Status state = Status.Missing;
+                            String stateStr;
+                            MaterialColor circleColor;
+                            if (snapshot.hasData){
+                              state = snapshot.data;
+                            }
+                            if (state == Status.Downloaded) {
+                              circleColor = Colors.green;
+                              stateStr = "Downloaded";
+                            } else if (state == Status.Queued) {
+                              circleColor = Colors.purple;
+                              stateStr = "Queued";
+                            } else if (state == Status.Missing) {
+                              circleColor = Colors.yellow;
+                              stateStr = "Missing";
+                            }
+
+                            return RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    style: TextStyle(
+                                        fontSize: 15, color: Colors.white),
+                                    text: '$stateStr ',
+                                  ),
+                                  WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Stack(
+                                        children: [
+                                          Icon(
+                                            Icons.circle,
+                                            color: circleColor,
+                                            size: 16,
+                                          ),
+                                          Icon(
+                                            Icons.panorama_fish_eye_outlined,
+                                            color: Colors.black,
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ))
+                                ],
                               ),
-                              WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: Stack(
-                                    children: [
-                                      Icon(
-                                        Icons.circle,
-                                        color: circleColor,
-                                        size: 16,
-                                      ),
-                                      Icon(
-                                        Icons.panorama_fish_eye_outlined,
-                                        color: Colors.black,
-                                        size: 16,
-                                      ),
-                                    ],
-                                  ))
-                            ],
-                          ),
-                        ),
+                            );
+                          },
+                        )
                       ),
                     ])),
                 Padding(

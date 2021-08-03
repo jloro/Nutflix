@@ -4,14 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'dart:developer' as developer;
 import 'DisplayGridObject.dart';
-import 'Movie.dart';
 import 'DisplayGrid.dart';
 
 Future<List<DisplayGridObject>> fetchSeries() async {
@@ -101,7 +96,6 @@ class _SeriesState extends State<Series> {
     return DisplayGrid(
         onTap: (BuildContext context, DisplayGridObject object) {
             Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
-        }, fetchMovies: fetchSeries, getSizeDisk: GetDiskSizeLeft, title: 'Series');
+        }, fetchMovies: CustomStream(fetchSeries).distinct(DisplayGridObject.Compare), getSizeDisk: CustomStream(GetDiskSizeLeft).distinct(), title: 'Series');
   }
-
 }
