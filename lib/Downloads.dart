@@ -34,7 +34,7 @@ Future<List<DownloadObject>> fetchDownloads() async {
       map = json.decode(response.body);
       for (dynamic obj in map['history']['slots'])
       {
-        if (obj['action_line'] != "")
+        if (obj['action_line'] != "" || obj['status'] == 'Queued')
           ret.add(DownloadObject(obj: obj, inQueue: false));
       }
       return ret;
@@ -85,16 +85,14 @@ class _DownloadsState extends State<Downloads> {
   Future<List<dynamic>> _fetchDownloads;
   Future<String> _fetchSpeed;
   int _length = 0;
+  Stream<String> _streamSpeed;
+  Stream<List<DownloadObject>> _streamDownloads;
 
   @override
   void initState() {
     super.initState();
-    // timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
-    //   setState(() {
-    //     _fetchDownloads = FetchDownloads();
-    //     _fetchSpeed = FetchSpeed();
-    //   });
-    // });
+    _streamSpeed = CustomStream<String>(fetchSpeed).distinct();
+    _streamDownloads = CustomStream<List<DownloadObject>>(fetchDownloads).distinct(DownloadObject.Compare);
   }
 
   @override
@@ -118,7 +116,7 @@ class _DownloadsState extends State<Downloads> {
                   alignment: Alignment.centerRight,
                   child: StreamBuilder<String>(
                     initialData: '0 bps',
-                    stream: CustomStream<String>(fetchSpeed).distinct(),
+                    stream: _streamSpeed,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         return Text('${snapshot.data}bps');
@@ -132,7 +130,7 @@ class _DownloadsState extends State<Downloads> {
         ),
         body: StreamBuilder<List<DownloadObject>>(
             initialData: [],
-            stream: CustomStream<List<DownloadObject>>(fetchDownloads).distinct(DownloadObject.Compare),
+            stream: _streamDownloads,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data.length == 0) return Text('No Downloads');

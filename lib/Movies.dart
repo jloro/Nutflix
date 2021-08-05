@@ -85,13 +85,24 @@ class Movies extends StatefulWidget {
 }
 
 class _MoviesState extends State<Movies> {
+
+  Stream<List<DisplayGridObject>> _streamMovies;
+  Stream<String> _streamSizeDisk;
+
+  @override
+  void initState() {
+    _streamMovies = CustomStream<List<DisplayGridObject>>(fetchMovies).distinct(DisplayGridObject.Compare);
+    _streamSizeDisk = CustomStream(GetDiskSizeLeft).distinct();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DisplayGrid(
         onTap: (BuildContext context, DisplayGridObject object) {
           if (object.type == Type.Movie)
             Navigator.pushNamed(context, Routes.infoMovie, arguments: object.ToMovie());
-    }, fetchMovies: CustomStream(fetchMovies).distinct(DisplayGridObject.Compare), getSizeDisk: CustomStream(GetDiskSizeLeft).distinct(), title: 'Movies',);
+    }, fetchMovies: _streamMovies, getSizeDisk: _streamSizeDisk, title: 'Movies',);
   }
 
 }

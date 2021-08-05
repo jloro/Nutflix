@@ -49,8 +49,7 @@ Future<List<DisplayGridObject>> fetchSeries() async {
   }
 }
 
-Future<String> GetDiskSizeLeft() async
-{
+Future<String> GetDiskSizeLeft() async {
   String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
 
   if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
@@ -79,6 +78,7 @@ Future<String> GetDiskSizeLeft() async
     throw Exception('Failed to load Movie');
   }
 }
+
 class Series extends StatefulWidget {
   static const String route = '/series';
   static const int index = 1;
@@ -91,11 +91,21 @@ class Series extends StatefulWidget {
 }
 
 class _SeriesState extends State<Series> {
+  Stream<List<DisplayGridObject>> _streamSeries;
+  Stream<String> _streamSizeDisk;
+
+  @override
+  void initState() {
+    _streamSeries = CustomStream<List<DisplayGridObject>>(fetchSeries).distinct(DisplayGridObject.Compare);
+    _streamSizeDisk = CustomStream(GetDiskSizeLeft).distinct();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DisplayGrid(
         onTap: (BuildContext context, DisplayGridObject object) {
             Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
-        }, fetchMovies: CustomStream(fetchSeries).distinct(DisplayGridObject.Compare), getSizeDisk: CustomStream(GetDiskSizeLeft).distinct(), title: 'Series');
+        }, fetchMovies: _streamSeries, getSizeDisk: _streamSizeDisk, title: 'Series');
   }
 }

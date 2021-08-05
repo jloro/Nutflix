@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:Nutarr/InfoShow.dart';
+import 'package:Nutarr/InfoShow/InfoShow.dart';
 import 'package:flutter/material.dart';
 import 'package:Nutarr/AddMovie.dart';
 import 'package:Nutarr/BottomNavigationBar.dart';

@@ -1,7 +1,7 @@
 import 'package:Nutarr/AddMovie.dart';
 import 'package:Nutarr/Downloads.dart';
 import 'package:Nutarr/InfoMovie.dart';
-import 'package:Nutarr/InfoShow.dart';
+import 'package:Nutarr/InfoShow/InfoShow.dart';
 import 'package:Nutarr/Search.dart';
 import 'package:Nutarr/Settings/SettingsPage.dart';
 

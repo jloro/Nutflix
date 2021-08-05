@@ -133,4 +133,9 @@ class Show {
         obj: json
     );
   }
+
+  int get hashCode => obj.hashCode;
+
+  @override
+  bool operator ==(o) => o is Show && obj.toString() == o.obj.toString();
 }

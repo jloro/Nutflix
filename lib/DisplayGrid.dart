@@ -79,6 +79,9 @@ class _DisplayGridState extends State<DisplayGrid> {
 
                         return Container(
                             child : InkWell(
+                              onLongPress: () {
+
+                              },
                                 onTap: () {
                                   this.widget.onTap(context, object);
                                 },

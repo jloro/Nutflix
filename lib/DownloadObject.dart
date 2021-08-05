@@ -19,7 +19,7 @@ class DownloadObject {
 
   String GetPercentage() { return obj['percentage']; }
 
-  String GetActionLine() { return obj['action_line']; }
+  String GetActionLine() { if (obj['action_line'] != '') return obj['action_line']; else return 'Waiting'; }
 
   String GetMb() { return obj['mb']; }
 

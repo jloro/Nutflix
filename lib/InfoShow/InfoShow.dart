@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+import 'package:Nutarr/InfoShow/SeasonWidget.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'Movie.dart';
-import 'PlayerPrefs.dart';
-import 'Show.dart';
-import 'DisplayGridObject.dart';
+import '../EpisodesObject.dart';
+import '../Movie.dart';
+import '../PlayerPrefs.dart';
+import '../Show.dart';
+import '../DisplayGridObject.dart';
+import 'EpisodeWidget.dart';
 
 Stream<Status> streamStatus(int id) async* {
   while (true) {
@@ -42,70 +46,7 @@ Future<Status> fetchStatus(int seriesId) async {
       return show.GetStatus(json.decode(response.body));
     }
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
     throw Exception('Failed to load Series, check sonarr settings.');
-  }
-}
-
-Future<void> MonitorSeason(Show show, int nb, bool state, Future<void> Function() refresh) async {
-  String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
-  if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
-    return Future.error(
-        'No sonarr URL specified, go to settings to specified it.');
-  else if (PlayerPrefs.sonarrApiKey == null || PlayerPrefs.sonarrApiKey == "")
-    return Future.error(
-        'No sonarr api key specified, go to settings to specified it.');
-
-  List<dynamic> seasons = show.obj['seasons'];
-  for (int i = 0; i < seasons.length; i++)
-    if (seasons[i]['seasonNumber'] == nb)
-      show.obj['seasons'][i]['monitored'] = state;
-
-  var response = await http.put('$url/api/v3/series/${show.GetId()}',
-      headers: {HttpHeaders.authorizationHeader: apiKey}, body: jsonEncode(show.obj));
-
-  if (response.statusCode == 202) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    if (state) {
-      response = await http.post('$url/api/v3/command',
-          headers: {HttpHeaders.authorizationHeader: apiKey},
-          body:
-              json.encode({'name': 'SeriesSearch', 'seriesId': show.GetId()}));
-    }
-    refresh();
-    return;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load Series, check sonarr settings.');
-  }
-}
-
-void DeleteSeason(Show show, int nb, Future<void> Function() refresh) async {
-  String baseUrl = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
-
-  final url = Uri.parse(baseUrl + "/api/v3/episodeFile/bulk");
-  final request = http.Request("DELETE", url);
-  request.headers
-      .addAll(<String, String>{HttpHeaders.authorizationHeader: apiKey});
-
-  request.body = jsonEncode({
-    "episodeFileIds": show.episodes
-        .where((element) =>
-            element['seasonNumber'] == nb && element['episodeFileId'] != 0)
-        .map<int>((e) => e['episodeFileId'])
-        .toList()
-  });
-  final response = await request.send();
-  if (response.statusCode != 200) {
-    print(response.reasonPhrase);
-    print(await response.stream.bytesToString());
-    return Future.error("Failed to delete season");
-  }
-  else {
-      refresh();
   }
 }
 
@@ -153,204 +94,16 @@ class InfoShow extends StatefulWidget {
   _InfoShowState createState() => _InfoShowState();
 }
 
-class Episode extends StatelessWidget {
-  final dynamic episode;
-  final List<dynamic> queue;
-  MaterialColor circleColor;
-
-  Episode({Key key, this.episode, this.queue}) : super(key: key);
-
-  showAlertDialog(BuildContext context) {
-    var date = episode['airDateUtc'] == null ? null : DateTime.tryParse(episode['airDateUtc']);
-    var dateStr;
-    if (date != null)
-      dateStr = DateFormat('yyyy-MM-dd – kk:mm').format(date);
-    else
-      dateStr = date;
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-        title: Text(
-            'S${episode['seasonNumber']}E${episode['episodeNumber']} ${episode['title']}'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text('${ episode['overview'] ?? '¯\\_(ツ)_/¯'}'),
-          SizedBox(
-            height: 10,
-          ),
-          Text('Aired on ${ dateStr ?? '¯\\_(ツ)_/¯'}'),
-        ]));
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    if (episode['airDateUtc'] != null &&
-        DateTime.now().compareTo(DateTime.parse(episode['airDateUtc'])) < 0)
-      circleColor = Colors.blue;
-    else if (!episode['monitored'])
-      circleColor = Colors.yellow;
-    else if (queue.where((element) => element['episodeId'] == episode['id']).isNotEmpty)
-      circleColor = Colors.purple;
-    else if (episode['hasFile'])
-      circleColor = Colors.green;
-    else
-      circleColor = Colors.yellow;
-
-    return InkWell(
-        onTap: () {
-          showAlertDialog(context);
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: Row(children: [
-            Expanded(
-              child: Text('${episode['episodeNumber']}.  ${episode['title']}'),
-            ),
-            Expanded(
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Stack(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: circleColor,
-                          size: 16,
-                        ),
-                        Icon(
-                          Icons.panorama_fish_eye_outlined,
-                          color: Colors.black,
-                          size: 16,
-                        ),
-                      ],
-                    )))
-          ]),
-        ));
-  }
-}
-
-class Season extends StatefulWidget {
-  final int nb;
-  final int sizeOnDisk;
-  final Show show;
-  final Future<void> Function() refresh;
-  final List<dynamic> queue;
-  
-  Season({Key key, this.nb, this.sizeOnDisk, this.show, this.refresh, this.queue}) : super(key: key);
-
-  @override
-  _SeasonState createState() => _SeasonState();
-}
-
-class _SeasonState extends State<Season> {
-  bool _expanded = false;
-  List<Widget> episodes;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    episodes = List<Widget>();
-    for (int i = 0;
-        i <
-            this
-                .widget
-                .show
-                .GetStatPerSeason(this.widget.nb)['totalEpisodeCount'];
-        i++) {
-      episodes.add(
-          Episode(episode: this.widget.show.GetEpisode(this.widget.nb, i + 1), queue: this.widget.queue));
-    }
-    return InkWell(
-        onTap: () {
-          setState(() {
-            _expanded = !_expanded;
-          });
-        },
-        child: Container(
-            child: Padding(
-          padding: EdgeInsets.only(left: 10, top: 20, bottom: 20, right: 10),
-          child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              RichText(
-                  text: TextSpan(children: [
-                TextSpan(
-                    text: 'Season ${this.widget.nb}',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                TextSpan(
-                    text:
-                        '  ${this.widget.show.GetStatPerSeason(this.widget.nb)['episodeFileCount']} / ${this.widget.show.GetStatPerSeason(this.widget.nb)['episodeCount']}',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w200)),
-                TextSpan(
-                    text:
-                        '   ${(this.widget.sizeOnDisk * 0.000000001).toStringAsFixed(2)} GB',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.w100)),
-              ])),
-              Container(
-                  child: Row(children: [
-                    IconButton(
-                        onPressed: () {
-                          MonitorSeason(
-                              this.widget.show,
-                              this.widget.nb,
-                              !this
-                                  .widget
-                                  .show
-                                  .GetIfSeasonMonitored(this.widget.nb),
-                              this.widget.refresh);
-                        },
-                        icon: Icon(
-                            this
-                                    .widget
-                                    .show
-                                    .GetIfSeasonMonitored(this.widget.nb)
-                                ? Icons.bookmark
-                                : Icons.bookmark_outline,
-                            color: Colors.white,
-                            size: 20)),
-                    IconButton(
-                        onPressed: this.widget.show.GetStatPerSeason(
-                            this.widget.nb)['episodeFileCount'] ==
-                            0
-                            ? null
-                            : () {
-                          DeleteSeason(this.widget.show, this.widget.nb, this.widget.refresh);
-                        },
-                        icon: Icon(Icons.delete, color: Colors.white, size: 20)),
-                    Icon(_expanded ? Icons.expand_less : Icons.expand_more,
-                        color: Colors.white, size: 20),
-                  ])),
-            ]),
-            _expanded
-                ? Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: episodes))
-                : Container()
-          ]),
-        )));
-  }
-}
-
 class _InfoShowState extends State<InfoShow> {
-  Future<List<Widget>> _fetchEpisodes;
+  Stream<Status> _streamStatus;
+  Stream<Episodes> _streamEpisodes;
+  Stream<Show> _streamShow;
 
   @override
   void initState() {
-    _fetchEpisodes = fetchEpisodes(_refreshWidget);
+    _streamStatus = streamStatus(this.widget.show.GetId()).distinct().asBroadcastStream();
+    _streamEpisodes = CustomStream<Episodes>(fetchEpisodes).distinct().asBroadcastStream();
+    _streamShow = CustomStream<Show>(fetchShow).distinct().asBroadcastStream();
     super.initState();
   }
 
@@ -390,7 +143,7 @@ class _InfoShowState extends State<InfoShow> {
     );
   }
 
-  Future<void> fetchShow() async {
+  Future<Show> fetchShow() async {
     String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
     if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
       return Future.error(
@@ -408,7 +161,7 @@ class _InfoShowState extends State<InfoShow> {
       // then parse the JSON.
 
       Map<String, dynamic> obj = json.decode(response.body);
-      this.widget.show = Show(obj: obj);
+      return Show(obj: obj);
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -416,7 +169,7 @@ class _InfoShowState extends State<InfoShow> {
     }
   }
 
-  Future<List<Widget>> fetchEpisodes(Future<void> Function() refresh) async {
+  Future<Episodes> fetchEpisodes() async {
     String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
     if (PlayerPrefs.sonarrURL == null || PlayerPrefs.sonarrURL == "")
       return Future.error(
@@ -430,36 +183,14 @@ class _InfoShowState extends State<InfoShow> {
         headers: {HttpHeaders.authorizationHeader: apiKey});
 
     if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-
-      List<dynamic> list = json.decode(response.body);
-      List<Widget> seasons = List<Widget>();
-      this.widget.show.episodes = list;
-      this.widget.show.hasFetchedEpisodes = true;
-
+      dynamic eps = json.decode(response.body);
       response = await http.get(
           '$url/api/v3/queue?pageSize=50',
           headers: {HttpHeaders.authorizationHeader: apiKey});
 
       if (response.statusCode == 200){
-        List<dynamic> list = json.decode(response.body)['records'];
-        for (int i in Iterable.generate(this.widget.show.GetNbSeasons())) {
-          seasons.add(Season(
-              nb: i + 1,
-              sizeOnDisk: this.widget.show.GetStatPerSeason(i + 1)['sizeOnDisk'],
-              show: this.widget.show,
-              refresh: refresh,
-              queue: list));
-          seasons.add(Padding(
-              padding: EdgeInsets.symmetric(vertical: 0),
-              child: SizedBox(
-                height: 1,
-                child: Container(color: Colors.black),
-              )));
-        }
-        return seasons;
-
+        Episodes ret = Episodes(obj: eps, queue: json.decode(response.body)['records']);
+        return ret;
       }else{
         throw Exception('Failed to load queue sonarr, check sonarr settings.');
       }
@@ -470,22 +201,11 @@ class _InfoShowState extends State<InfoShow> {
     }
   }
 
-  Future<void> _refreshWidget() =>
-      Future.delayed(Duration(seconds: 1), () async {
-        await fetchShow();
-        setState(() {
-          _fetchEpisodes = fetchEpisodes(_refreshWidget);
-        });
-      });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Infos')),
-        body: RefreshIndicator(
-            displacement: 30,
-            onRefresh: _refreshWidget,
-            child: ListView(
+        body: ListView(
               children: <Widget>[
                 Padding(
                     padding: EdgeInsets.only(bottom: 10),
@@ -519,7 +239,7 @@ class _InfoShowState extends State<InfoShow> {
                         alignment: Alignment.centerRight,
                         child: StreamBuilder<Status>(
                           initialData: this.widget.show.status,
-                          stream: streamStatus(this.widget.show.GetId()).distinct(),
+                          stream: _streamStatus,
                           builder: (cxt, snapshot){
                             Status state = Status.Missing;
                             String stateStr;
@@ -604,13 +324,28 @@ class _InfoShowState extends State<InfoShow> {
                           backgroundColor:
                               MaterialStateProperty.all<Color>(Colors.red[900]),
                         ))),
-                FutureBuilder<List<Widget>>(
-                    future: _fetchEpisodes,
+                FutureBuilder<Episodes>(
+                    future: fetchEpisodes(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        List<Widget> seasons = List.empty(growable: true);
+                        for (int i in Iterable.generate(this.widget.show.GetNbSeasons())) {
+                          seasons.add(SeasonWidget(
+                              nb: i + 1,
+                              show: this.widget.show,
+                              episodes: snapshot.data,
+                          streamShow: _streamShow,
+                          streamEpisodes: _streamEpisodes,));
+                          seasons.add(Padding(
+                              padding: EdgeInsets.symmetric(vertical: 0),
+                              child: SizedBox(
+                                height: 1,
+                                child: Container(color: Colors.black),
+                              )));
+                        }
                         return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: snapshot.data);
+                            children: seasons);
                       } else if (snapshot.hasError) {
                         return Container(
                             height: MediaQuery.of(context).size.height,
@@ -619,6 +354,6 @@ class _InfoShowState extends State<InfoShow> {
                       return CircularProgressIndicator();
                     })
               ],
-            )));
+            ));
   }
 }

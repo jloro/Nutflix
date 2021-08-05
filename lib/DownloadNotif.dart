@@ -50,10 +50,17 @@ class DownloadNotif extends StatefulWidget {
 
 class DownloadNotifState extends State<DownloadNotif> {
 
+  Stream<int> _streamNotif;
+
+  @override
+  void initState() {
+    _streamNotif = CustomStream<int>(fetchDownloads).distinct();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: CustomStream<int>(fetchDownloads).distinct(),
+      stream: _streamNotif,
       initialData: 0,
       builder: (cxt, snapshot) {
         int downloads = 0;
