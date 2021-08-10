@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../EpisodesObject.dart';
+import 'EpisodesObject.dart';
 import '../PlayerPrefs.dart';
 import '../Show.dart';
 import 'EpisodeWidget.dart';

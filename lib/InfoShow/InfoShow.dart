@@ -8,11 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../EpisodesObject.dart';
+import 'EpisodesObject.dart';
 import '../Movie.dart';
 import '../PlayerPrefs.dart';
 import '../Show.dart';
-import '../DisplayGridObject.dart';
+import '../DisplayGrid/DisplayGridObject.dart';
 import 'EpisodeWidget.dart';
 
 Stream<Status> streamStatus(int id) async* {
@@ -50,7 +50,7 @@ Future<Status> fetchStatus(int seriesId) async {
   }
 }
 
-void DeleteAllShow(Show show) async {
+Future<void> DeleteAllShow(Show show) async {
   String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
 
   var response = await http.get('$url/api/v3/queue',

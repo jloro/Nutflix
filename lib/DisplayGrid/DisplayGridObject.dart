@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-import 'Movie.dart';
-import 'Show.dart';
+import '../Movie.dart';
+import '../Show.dart';
 
 enum Type {
   Movie,
@@ -65,7 +65,10 @@ class DisplayGridObject {
 
   bool GetHasFile() {
     if (type == Type.Movie) return obj['hasFile'];
-    else return obj['statistics']['episodeFileCount'] == obj['statistics']['episodeCount'];
+    else {
+      if (obj['statistics'] == null) return false;
+      return obj['statistics']['episodeFileCount'] == obj['statistics']['episodeCount'];
+    }
   }
 
   String GetAdded() {
@@ -114,8 +117,15 @@ class DisplayGridObject {
 
 Stream<T> CustomStream<T>(Future<T> Function() future) async* {
   while (true) {
-    await Future.delayed(Duration(seconds: 1));
-    T ret = await future();
-    yield ret;
+    try {
+      await Future.delayed(Duration(seconds: 1));
+    } on Exception catch (e) {
+      // print('exception');
+      throw e;
+    } finally {
+      // print('finally');
+      T ret = await future();
+      yield ret;
+    }
   }
 }

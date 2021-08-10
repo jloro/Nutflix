@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:Nutarr/AddObject.dart';
-import 'package:Nutarr/DisplayGridObject.dart';
+import 'package:Nutarr/DisplayGrid/DisplayGridObject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

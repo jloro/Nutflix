@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:http/http.dart' as http;
 import 'PlayerPrefs.dart';
-import 'DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
 import 'DownloadObject.dart';
 
 Future<List<DownloadObject>> fetchDownloads() async {
@@ -81,10 +81,6 @@ class Downloads extends StatefulWidget {
 }
 
 class _DownloadsState extends State<Downloads> {
-  Timer timer;
-  Future<List<dynamic>> _fetchDownloads;
-  Future<String> _fetchSpeed;
-  int _length = 0;
   Stream<String> _streamSpeed;
   Stream<List<DownloadObject>> _streamDownloads;
 
@@ -95,10 +91,11 @@ class _DownloadsState extends State<Downloads> {
     _streamDownloads = CustomStream<List<DownloadObject>>(fetchDownloads).distinct(DownloadObject.Compare);
   }
 
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
+  void retryStream() {
+    setState(() {
+      _streamSpeed = CustomStream<String>(fetchSpeed).distinct();
+      _streamDownloads = CustomStream<List<DownloadObject>>(fetchDownloads).distinct(DownloadObject.Compare);
+    });
   }
 
   @override
@@ -132,6 +129,9 @@ class _DownloadsState extends State<Downloads> {
             initialData: [],
             stream: _streamDownloads,
             builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return CircularProgressIndicator();
+
               if (snapshot.hasData) {
                 if (snapshot.data.length == 0) return Text('No Downloads');
                 else {
@@ -216,7 +216,14 @@ class _DownloadsState extends State<Downloads> {
                       });
                 }
               } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
+                return Container(
+                    child: Column(
+                        children: [
+                          Text("${snapshot.error}"),
+                          IconButton(onPressed: retryStream, icon: Icon(Icons.refresh))
+                        ]
+                    )
+                );
               }
               // By default, show a loading spinner.
               return CircularProgressIndicator();

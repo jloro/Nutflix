@@ -6,8 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
-import 'DisplayGridObject.dart';
-import 'DisplayGrid.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGrid.dart';
+import 'InfoShow/InfoShow.dart';
 
 Future<List<DisplayGridObject>> fetchSeries() async {
   String url = PlayerPrefs.sonarrURL, apiKey = PlayerPrefs.sonarrApiKey;
@@ -101,11 +102,27 @@ class _SeriesState extends State<Series> {
     super.initState();
   }
 
+  Stream<List<DisplayGridObject>> onErrorFetchSeries() {
+    _streamSeries = CustomStream<List<DisplayGridObject>>(fetchSeries).distinct(DisplayGridObject.Compare);
+    return _streamSeries;
+  }
+
+  Stream<String> onErrorGetSizeDisk() {
+    _streamSizeDisk = CustomStream(GetDiskSizeLeft).distinct();
+    return _streamSizeDisk;
+  }
+
   @override
   Widget build(BuildContext context) {
     return DisplayGrid(
-        onTap: (BuildContext context, DisplayGridObject object) {
-            Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
-        }, fetchMovies: _streamSeries, getSizeDisk: _streamSizeDisk, title: 'Series');
+      onTap: (BuildContext context, DisplayGridObject object) {
+          Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
+      },
+      fetchObjects: _streamSeries,
+      getSizeDisk: _streamSizeDisk,
+      title: 'Series',
+      onErrorFetchObjects: onErrorFetchSeries,
+      onErrorGetSizeDisk: onErrorGetSizeDisk,
+    );
   }
 }

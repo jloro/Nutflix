@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Movie.dart';
 import 'PlayerPrefs.dart';
 
-void DeleteMovie(Movie movie) async {
+Future<void> DeleteMovie(Movie movie) async {
   String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
 
   var response = await http.get('$url/api/v3/queue',

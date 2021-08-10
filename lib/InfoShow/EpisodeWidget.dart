@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../EpisodesObject.dart';
+import 'EpisodesObject.dart';
 
 class EpisodeWidget extends StatefulWidget {
   Episodes episodes;

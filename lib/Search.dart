@@ -9,7 +9,7 @@ import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
 import 'dart:developer' as developer;
 
-import 'DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
 
 Future<List<DisplayGridObject>> FetchSearchMovie(String search) async {
   String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;

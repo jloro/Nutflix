@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
 
 class AddObject extends StatefulWidget {
   final DisplayGridObject object;

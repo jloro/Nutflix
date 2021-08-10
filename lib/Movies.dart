@@ -6,8 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
-import 'DisplayGridObject.dart';
-import 'DisplayGrid.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGrid.dart';
+import 'InfoMovie.dart';
 
 Future<List<DisplayGridObject>> fetchMovies() async {
   String url = PlayerPrefs.radarrURL, apiKey = PlayerPrefs.radarrApiKey;
@@ -37,6 +38,7 @@ Future<List<DisplayGridObject>> fetchMovies() async {
         movies.add(movie);
       }
       movies.sort((a, b) => DateTime.parse(b.GetAdded()).compareTo(DateTime.parse(a.GetAdded())));
+      // print('return movies');
       return movies;
     } else {
       throw Exception('Failed to load queue');
@@ -84,6 +86,41 @@ class Movies extends StatefulWidget {
   _MoviesState createState() => _MoviesState();
 }
 
+showAlertDialog(BuildContext context, DisplayGridObject movie) {
+  // set up the buttons
+  Widget cancelButton = ElevatedButton(
+    child: Text("No"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = ElevatedButton(
+    child: Text("Yes"),
+    onPressed: () {
+      DeleteMovie(movie.movie);
+      Navigator.pop(context);
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text('Do you want to delete ${movie.GetTitle()}'),
+    // content: Text('Do you want to delete ${movie.GetTitle()}'),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
 class _MoviesState extends State<Movies> {
 
   Stream<List<DisplayGridObject>> _streamMovies;
@@ -96,13 +133,29 @@ class _MoviesState extends State<Movies> {
     super.initState();
   }
 
+  Stream<List<DisplayGridObject>> onErrorFetchMovies() {
+    _streamMovies = CustomStream<List<DisplayGridObject>>(fetchMovies).distinct(DisplayGridObject.Compare);
+    return _streamMovies;
+  }
+
+  Stream<String> onErrorGetSizeDisk() {
+    _streamSizeDisk = CustomStream(GetDiskSizeLeft).distinct();
+    return _streamSizeDisk;
+  }
+
   @override
   Widget build(BuildContext context) {
     return DisplayGrid(
-        onTap: (BuildContext context, DisplayGridObject object) {
-          if (object.type == Type.Movie)
-            Navigator.pushNamed(context, Routes.infoMovie, arguments: object.ToMovie());
-    }, fetchMovies: _streamMovies, getSizeDisk: _streamSizeDisk, title: 'Movies',);
+      onTap: (BuildContext context, DisplayGridObject object) {
+        if (object.type == Type.Movie)
+          Navigator.pushNamed(context, Routes.infoMovie, arguments: object.ToMovie());
+      },
+      fetchObjects: _streamMovies,
+      getSizeDisk: _streamSizeDisk,
+      title: 'Movies',
+      onErrorFetchObjects: onErrorFetchMovies,
+      onErrorGetSizeDisk: onErrorGetSizeDisk,
+    );
   }
 
 }

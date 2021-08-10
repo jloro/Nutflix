@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'DisplayGridObject.dart';
+import 'DisplayGrid/DisplayGridObject.dart';
 import 'PlayerPrefs.dart';
 
 Future<int> fetchDownloads() async {
