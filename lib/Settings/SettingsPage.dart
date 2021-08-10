@@ -13,7 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:convert';
-// import 'dart:html' as html;
+import 'dart:html' as html;
 
 class Settings extends StatefulWidget {
   static const String route = '/settings';
@@ -180,9 +180,9 @@ class _SettingsState extends State<Settings> {
                     FilePickerResult result = await FilePicker.platform.pickFiles();
                     if(result != null) {
                       if (result.files.first.extension == 'json'){
-                        // dynamic newPrefs = jsonDecode(await utf8.decode(result.files.first.bytes));
-                        File file = File(result.files.single.path);
-                        dynamic newPrefs = jsonDecode(await file.readAsString());
+                        dynamic newPrefs = jsonDecode(await utf8.decode(result.files.first.bytes));
+                        // File file = File(result.files.single.path);
+                        // dynamic newPrefs = jsonDecode(await file.readAsString());
                         setState(() {
                           PlayerPrefs.radarrURL = newPrefs['Radarr']['url'];
                           PlayerPrefs.radarrApiKey = newPrefs['Radarr']['apiKey'];
@@ -232,19 +232,19 @@ class _SettingsState extends State<Settings> {
                     });
 
                     if (kIsWeb){
-                      // final bytes = utf8.encode(obj);
-                      // final blob = html.Blob([bytes]);
-                      // final url = html.Url.createObjectUrlFromBlob(blob);
-                      // final anchor = html.document.createElement('a') as html.AnchorElement
-                      //   ..href = url
-                      //   ..style.display = 'none'
-                      //   ..download = 'SettingsNutarr.json';
-                      // html.document.body.children.add(anchor);
-                      //
-                      // anchor.click();
-                      //
-                      // html.document.body.children.remove(anchor);
-                      // html.Url.revokeObjectUrl(url);
+                      final bytes = utf8.encode(obj);
+                      final blob = html.Blob([bytes]);
+                      final url = html.Url.createObjectUrlFromBlob(blob);
+                      final anchor = html.document.createElement('a') as html.AnchorElement
+                        ..href = url
+                        ..style.display = 'none'
+                        ..download = 'SettingsNutarr.json';
+                      html.document.body.children.add(anchor);
+
+                      anchor.click();
+
+                      html.document.body.children.remove(anchor);
+                      html.Url.revokeObjectUrl(url);
                     }else{
                       String path = '/storage/emulated/0/Download';
                       File file = File('$path/SettingsNutarr.json');
