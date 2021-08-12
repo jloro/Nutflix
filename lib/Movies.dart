@@ -8,6 +8,7 @@ import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
 import 'DisplayGrid/DisplayGridObject.dart';
 import 'DisplayGrid/DisplayGrid.dart';
+import 'DisplayGrid/DisplayGridStream.dart';
 import 'InfoMovie.dart';
 
 Future<List<DisplayGridObject>> fetchMovies() async {
@@ -145,7 +146,7 @@ class _MoviesState extends State<Movies> {
 
   @override
   Widget build(BuildContext context) {
-    return DisplayGrid(
+    return DisplayGridStream(
       onTap: (BuildContext context, DisplayGridObject object) {
         if (object.type == Type.Movie)
           Navigator.pushNamed(context, Routes.infoMovie, arguments: object.ToMovie());

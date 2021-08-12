@@ -29,7 +29,7 @@ Future<int> fetchDownloads() async {
       map = json.decode(response.body);
       for (dynamic obj in map['history']['slots'])
       {
-        if (obj['action_line'] != "")
+        if (obj['action_line'] != ""|| obj['status'] == 'Queued')
           ret++;
       }
       return ret;

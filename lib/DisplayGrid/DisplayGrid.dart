@@ -1,115 +1,98 @@
-import 'dart:async';
-
-import 'package:Nutarr/DisplayGrid/DisplayGridCard.dart';
-import 'package:Nutarr/DisplayGrid/DisplayGridObject.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'dart:developer' as developer;
-import '../InfoMovie.dart';
-import '../InfoShow/InfoShow.dart';
-import '../Movie.dart';
+
+import 'DisplayGridCard.dart';
+import 'DisplayGridObject.dart';
 
 class DisplayGrid extends StatefulWidget {
-  final Stream<List<DisplayGridObject>> fetchObjects;
-  final Stream<String> getSizeDisk;
+  final AsyncSnapshot<List<DisplayGridObject>> snapshot;
   final void Function(BuildContext context, DisplayGridObject object) onTap;
-  final String title;
-  final Stream<List<DisplayGridObject>> Function() onErrorFetchObjects;
-  final Stream<String> Function() onErrorGetSizeDisk;
 
-  DisplayGrid({ @required this.title, @required this.onTap, @required this.fetchObjects, @required this.getSizeDisk, this.onErrorFetchObjects, this.onErrorGetSizeDisk, Key key }) : super(key: key);
-
+  DisplayGrid({this.snapshot, this.onTap, Key key}) : super(key:key);
   @override
   _DisplayGridState createState() => _DisplayGridState();
 }
 
 class _DisplayGridState extends State<DisplayGrid> {
-  Timer timer;
-  Stream<List<DisplayGridObject>> _streamObjects;
-  Stream<String> _streamSizeDisk;
+  List<String> _ids;
+
+  void onDelete(String value) {
+    _ids.add(value);
+  }
+
+  void setStateForChildren() {
+    setState(() {
+
+    });
+  }
+
+  ScrollController _scrollController;
 
   @override
   void initState() {
-    _streamObjects = this.widget.fetchObjects;
-    _streamSizeDisk = this.widget.getSizeDisk;
+    _ids = List.empty(growable: true);
+    _scrollController = ScrollController();
     super.initState();
-  }
-
-  void retryStream() {
-    setState(() {
-      _streamObjects = this.widget.onErrorFetchObjects();
-      _streamSizeDisk = this.widget.onErrorGetSizeDisk();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Container(
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(this.widget.title),
-                    ),
-                  ),
-                  Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: StreamBuilder<String>(
-                          initialData: 'fetching...',
-                          stream: _streamSizeDisk,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Text(snapshot.data);
-                            } else {
-                              return Text('');
-                            }
-                          },
-                        ),
-                      )
-                  )
-                ],
-              ),
-            )
+    List<String> toRemove = List.empty(growable: true);
+    for (String id in _ids) {
+      if (this.widget.snapshot.data.indexWhere((element) => element.GetIMDBId() == id) == -1)
+        toRemove.add(id);
+    }
+    _ids.removeWhere((element) => toRemove.contains(element));
+
+    return ListView(
+      controller: _scrollController,
+      children: [
+        GridView.builder(
+          controller: _scrollController,
+            shrinkWrap: true,
+            // primary: true,
+            itemCount: this.widget.snapshot.data.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
+                childAspectRatio: 2 / 3,
+                crossAxisCount: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height > 1 ? 5 : 3
+            ),
+            itemBuilder: (context, i) {
+              // if (i < this.widget.snapshot.data.length)
+                return DisplayGridCard(
+                object: this.widget.snapshot.data[i],
+                onTap: this.widget.onTap,
+                onDelete: onDelete,
+                deleting: _ids.contains(this.widget.snapshot.data[i].GetIMDBId()),
+                setState: setStateForChildren,
+              );
+              // else
+              //   return Container(
+              //     child: Card(
+              //       clipBehavior: Clip.antiAlias,
+              //       semanticContainer: true,
+              //       elevation: 5,
+              //       child: GridTile(
+              //           // child: Column(
+              //           //   children: [
+              //           //     Text('Hold to remove'),
+              //           //     Text('Tap to show info'),
+              //           //     Text('Slide to quick info'),
+              //           //   ]
+              //           // )
+              //     )
+              //   ));
+            }
         ),
-        body : StreamBuilder<List<DisplayGridObject>>(
-              stream : _streamObjects,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  return CircularProgressIndicator();
-                if (snapshot.hasData) {
-                  return  GridView.builder(
-                      itemCount: snapshot.data.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
-                          childAspectRatio: 2 / 3,
-                          crossAxisCount: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height > 1 ? 5 : 3
-                      ),
-                      itemBuilder: (context, i) {
-                        return DisplayGridCard(
-                          object: snapshot.data[i],
-                          onTap: this.widget.onTap
-                        );
-                      }
-                  );
-                } else if (snapshot.hasError) {
-                  return Container(
-                      child: Column(
-                        children: [
-                          Text("${snapshot.error}"),
-                          IconButton(onPressed: retryStream, icon: Icon(Icons.refresh))
-                        ]
-                      )
-                  );
-                }
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              }
-          ),
-        );
+        Container(
+          child: Column(
+            children: [
+              Text('Hold to delete'),
+              Text('Tap to show info'),
+              Text('Slide to show quick info'),
+            ]
+          )
+        )
+      ],
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:Nutarr/PlayerPrefs.dart';
 import 'package:Nutarr/routes.dart';
 import 'DisplayGrid/DisplayGridObject.dart';
 import 'DisplayGrid/DisplayGrid.dart';
+import 'DisplayGrid/DisplayGridStream.dart';
 import 'InfoShow/InfoShow.dart';
 
 Future<List<DisplayGridObject>> fetchSeries() async {
@@ -114,7 +115,7 @@ class _SeriesState extends State<Series> {
 
   @override
   Widget build(BuildContext context) {
-    return DisplayGrid(
+    return DisplayGridStream(
       onTap: (BuildContext context, DisplayGridObject object) {
           Navigator.pushNamed(context, Routes.infoShow, arguments: object.ToShow());
       },

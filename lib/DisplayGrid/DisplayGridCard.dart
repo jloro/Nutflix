@@ -10,8 +10,11 @@ import 'DisplayGridObject.dart';
 class DisplayGridCard extends StatefulWidget {
   final DisplayGridObject object;
   final void Function(BuildContext context, DisplayGridObject object) onTap;
+  final bool deleting;
+  final void Function(String) onDelete;
+  final void Function() setState;
 
-  DisplayGridCard({this.object, this.onTap, Key key}) : super(key: key);
+  DisplayGridCard({this.object, this.onTap, this.onDelete, this.deleting, this.setState, Key key}) : super(key: key);
 
   @override
   _DisplayGridCardState createState() => _DisplayGridCardState();
@@ -20,13 +23,25 @@ class DisplayGridCard extends StatefulWidget {
 class _DisplayGridCardState extends State<DisplayGridCard> {
   Color circleColor = Colors.white;
   Future<void> _futureDelete;
+  String _id;
+  bool _deleting;
 
   @override
   void initState() {
+    _id = this.widget.object.GetIMDBId();
+    _deleting = this.widget.deleting;
     super.initState();
   }
 
-  void SelectStatus() {
+  void preBuild() {
+    if (_id != this.widget.object.GetIMDBId()) {
+      _id = this.widget.object.GetIMDBId();
+      _deleting = this.widget.deleting;
+    }
+
+    if (this.widget.deleting && !_deleting)
+      _deleting = true;
+
     if (this.widget.object.status == Status.Downloaded)
       circleColor = Colors.green;
     else if (this.widget.object.status == Status.Queued)
@@ -46,12 +61,22 @@ class _DisplayGridCardState extends State<DisplayGridCard> {
     Widget continueButton = ElevatedButton(
       child: Text("Yes"),
       onPressed: () {
-        setState(() {
+        this.widget.onDelete(object.GetIMDBId());
+        if (object.GetIMDBId() == _id) {
+          setState(() {
+            _deleting = true;
+            if (object.type == Type.TVShow)
+              _futureDelete = DeleteAllShow(object.show);
+            else
+              _futureDelete = DeleteMovie(object.movie);
+          });
+        } else {
+          this.widget.setState();
           if (object.type == Type.TVShow)
-            _futureDelete = DeleteAllShow(object.show);
+            DeleteAllShow(object.show);
           else
-            _futureDelete = DeleteMovie(object.movie);
-        });
+            DeleteMovie(object.movie);
+        }
         Navigator.pop(context);
       },
     );
@@ -76,7 +101,7 @@ class _DisplayGridCardState extends State<DisplayGridCard> {
 
   @override
   Widget build(BuildContext context) {
-    SelectStatus();
+    preBuild();
     return Container(
         child: Stack(children: [
       InkWell(
@@ -118,12 +143,20 @@ class _DisplayGridCardState extends State<DisplayGridCard> {
                 ))),
           )),
       Visibility(
-        visible: _futureDelete != null,
+        visible: _deleting,
         child: FutureBuilder(
           future: _futureDelete,
           builder: (cxt, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done)
-              _futureDelete = null;
+            if (snapshot.hasError){
+              final scaffold = ScaffoldMessenger.of(context);
+              scaffold.showSnackBar(
+                SnackBar(
+                    duration: Duration(seconds: 1),
+                    content: Text('Error removing movie'),
+                    backgroundColor: Colors.red),
+              );
+              return Container();
+            }
             return Card(
                     color: Colors.transparent,
                     clipBehavior: Clip.antiAlias,
