@@ -247,9 +247,12 @@ class _InfoShowState extends State<InfoShow> {
                             if (snapshot.hasData){
                               state = snapshot.data;
                             }
-                            if (state == Status.Downloaded) {
+                            if (state == Status.Downloaded && this.widget.show.GetEnded()) {
                               circleColor = Colors.green;
                               stateStr = "Downloaded";
+                            }else if (state == Status.Downloaded && !this.widget.show.GetEnded()){
+                              circleColor = Colors.blue;
+                              stateStr = "Airing";
                             } else if (state == Status.Queued) {
                               circleColor = Colors.purple;
                               stateStr = "Queued";
@@ -313,17 +316,17 @@ class _InfoShowState extends State<InfoShow> {
                     ),
                   ),
                 ),
-                Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 20),
-                    child: ElevatedButton(
-                        child: Text('Delete all episodes'),
-                        onPressed: () {
-                          showAlertDialog(context, this.widget.show);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.red[900]),
-                        ))),
+                // Padding(
+                //     padding: EdgeInsets.only(top: 20, bottom: 20),
+                //     child: ElevatedButton(
+                //         child: Text('Delete all episodes'),
+                //         onPressed: () {
+                //           showAlertDialog(context, this.widget.show);
+                //         },
+                //         style: ButtonStyle(
+                //           backgroundColor:
+                //               MaterialStateProperty.all<Color>(Colors.red[900]),
+                //         ))),
                 FutureBuilder<Episodes>(
                     future: fetchEpisodes(),
                     builder: (context, snapshot) {

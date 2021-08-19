@@ -86,7 +86,12 @@ class Show {
 
   bool GetHasFile() { return obj['statistics']['episodeFileCount'] == obj['statistics']['episodeCount']; }
 
-  bool GetIsAvailable() { return obj['statistics']['episodeCount'] != 0; }
+  bool GetIsAvailable() {
+    if (obj['statistics'] == null)
+      return false;
+    else
+      return obj['statistics']['episodeCount'] != 0;
+  }
 
   Status GetStatus(Map<String, dynamic> body) {
     if (body['totalRecords'] != 0)

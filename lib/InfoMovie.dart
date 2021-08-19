@@ -205,17 +205,17 @@ class _InfoMovieState extends State<InfoMovie> {
                 ),
               ),
             ),
-            Padding(
-                padding: EdgeInsets.only(top: 20, bottom: 20),
-                child: ElevatedButton(
-                    child: Text('Delete'),
-                    onPressed: () {
-                      showAlertDialog(context, this.widget.movie);
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.red[900]),
-                    ))),
+            // Padding(
+            //     padding: EdgeInsets.only(top: 20, bottom: 20),
+            //     child: ElevatedButton(
+            //         child: Text('Delete'),
+            //         onPressed: () {
+            //           showAlertDialog(context, this.widget.movie);
+            //         },
+            //         style: ButtonStyle(
+            //           backgroundColor:
+            //               MaterialStateProperty.all<Color>(Colors.red[900]),
+            //         ))),
             Container(
                 padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
                 child: PlayerPrefs.statsForNerds && this.widget.movie.status == Status.Downloaded

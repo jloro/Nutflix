@@ -50,14 +50,12 @@ class _DisplayGridState extends State<DisplayGrid> {
         GridView.builder(
           controller: _scrollController,
             shrinkWrap: true,
-            // primary: true,
             itemCount: this.widget.snapshot.data.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount (
                 childAspectRatio: 2 / 3,
                 crossAxisCount: MediaQuery.of(context).size.width / MediaQuery.of(context).size.height > 1 ? 5 : 3
             ),
             itemBuilder: (context, i) {
-              // if (i < this.widget.snapshot.data.length)
                 return DisplayGridCard(
                 object: this.widget.snapshot.data[i],
                 onTap: this.widget.onTap,
@@ -65,30 +63,51 @@ class _DisplayGridState extends State<DisplayGrid> {
                 deleting: _ids.contains(this.widget.snapshot.data[i].GetIMDBId()),
                 setState: setStateForChildren,
               );
-              // else
-              //   return Container(
-              //     child: Card(
-              //       clipBehavior: Clip.antiAlias,
-              //       semanticContainer: true,
-              //       elevation: 5,
-              //       child: GridTile(
-              //           // child: Column(
-              //           //   children: [
-              //           //     Text('Hold to remove'),
-              //           //     Text('Tap to show info'),
-              //           //     Text('Slide to quick info'),
-              //           //   ]
-              //           // )
-              //     )
-              //   ));
             }
         ),
         Container(
+          padding : EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Text('Hold to delete'),
-              Text('Tap to show info'),
-              Text('Slide to show quick info'),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    WidgetSpan(
+                      alignment:
+                      PlaceholderAlignment.middle,
+                      child: Icon(Icons.delete,
+                          color: Colors.white),
+                    ),
+                    TextSpan(text: '  Hold to delete'),
+                  ]
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                    children: [
+                      WidgetSpan(
+                        alignment:
+                        PlaceholderAlignment.middle,
+                        child: Icon(Icons.info,
+                            color: Colors.white),
+                      ),
+                      TextSpan(text: '  Tap to show info'),
+                    ]
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                    children: [
+                      WidgetSpan(
+                        alignment:
+                        PlaceholderAlignment.middle,
+                        child: Icon(Icons.info,
+                            color: Colors.white),
+                      ),
+                      TextSpan(text: '  Slide to show quick info'),
+                    ]
+                ),
+              ),
             ]
           )
         )

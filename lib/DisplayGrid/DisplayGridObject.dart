@@ -21,6 +21,10 @@ class DisplayGridObject {
       show = Show(obj:obj);
   }
 
+  int GetRuntime() { return obj['runtime']; }
+
+  List<String> GetGenres() { return new List<String>.from(obj['genres']);}
+
   String GetPoster() {
     List<dynamic> images = obj['images'];
     if (type == Type.Movie && images.length != 0) return images[0]['remoteUrl'].toString().replaceFirst('original', 'w185');
@@ -77,12 +81,21 @@ class DisplayGridObject {
 
   bool GetIsAvailable() {
     if (type == Type.Movie) return obj['isAvailable'];
-    else return obj['statistics']['episodeCount'] != 0;
+    else {
+      if (obj['statistics'] == null)
+        return false;
+      else
+        return obj['statistics']['episodeCount'] != 0;
+    }
   }
 
   String GetIMDBId() { return obj['imdbId']; }
 
   String GetRating() { return obj['ratings']['value'].toString(); }
+
+  String GetYear() {
+    return obj['year'].toString();
+  }
 
   Movie ToMovie() {
     Movie ret = Movie(obj: obj);
