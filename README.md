@@ -1,16 +1,21 @@
-# nutflix
+# Nutflix
 
-A new Flutter application.
+Play Store : https://play.google.com/store/apps/details?id=com.nutflix.nutflix
 
-## Getting Started
+IOS use pwa : https://nutflix.fr
 
-This project is a starting point for a Flutter application.
+## Description
 
-A few resources to get you started if this is your first Flutter project:
+This project is an application using [Radarr](https://radarr.video/), [Sonarr](https://sonarr.tv/), [Sabnzbd](https://sabnzbd.org/) API. Its purpose is to never use the web interfaces of these and simplify their utilisation.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+To use it you must have installed on a server at least Sabnzbd and Radarr or Sonarr.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Nutflix is in [Dart](https://dart.dev/) using [Flutter Engine](https://flutter.dev/).
+
+## Screenshots
+
+<img src="/assets/screenshots/movies.jpg" height="300">&nbsp;&nbsp;&nbsp;<img src="/assets/screenshots/series.jpg" height="300">&nbsp;&nbsp;&nbsp;<img src="/assets/screenshots/search.jpg" height="300">&nbsp;&nbsp;&nbsp;<img src="/assets/screenshots/downloads.jpg" height="300">
+
+# Author
+
+- Jules Loro [jloro](https://github.com/jloro)
